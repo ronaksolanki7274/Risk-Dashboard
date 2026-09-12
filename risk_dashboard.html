@@ -1,0 +1,4369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Risk Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#0b1020;
+    color:#e8ecf7;
+}
+
+button,
+input,
+select,
+textarea{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.container{
+    width:100%;
+    max-width:1450px;
+    margin:auto;
+    padding:20px;
+}
+
+/* LOGIN */
+
+.login-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.login-box{
+    width:100%;
+    max-width:430px;
+    background:#121a2e;
+    border:1px solid #263354;
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+
+.login-box h1{
+    margin-top:0;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#8e9ab8;
+    margin-bottom:25px;
+}
+
+label{
+    display:block;
+    margin-bottom:7px;
+    color:#aeb8d1;
+    font-size:14px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:11px 12px;
+    border-radius:9px;
+    border:1px solid #334263;
+    background:#0d1426;
+    color:#fff;
+    outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:#5b8cff;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.primary-btn{
+    width:100%;
+    padding:12px;
+    border:0;
+    border-radius:9px;
+    background:#356dff;
+    color:#fff;
+    font-weight:bold;
+}
+
+.secondary-btn{
+    padding:10px 14px;
+    border:1px solid #334263;
+    border-radius:8px;
+    background:#17213a;
+    color:#fff;
+}
+
+.danger-btn{
+    padding:8px 12px;
+    border:0;
+    border-radius:7px;
+    background:#9f2f3d;
+    color:#fff;
+}
+
+.success-btn{
+    padding:8px 12px;
+    border:0;
+    border-radius:7px;
+    background:#18794e;
+    color:#fff;
+}
+
+.small-btn{
+    padding:7px 10px;
+    border-radius:7px;
+    border:1px solid #334263;
+    background:#18233d;
+    color:#fff;
+}
+
+.auth-switch{
+    text-align:center;
+    margin-top:18px;
+    color:#8e9ab8;
+}
+
+.auth-switch span{
+    color:#6d9aff;
+    cursor:pointer;
+}
+
+.auth-message{
+    margin-top:15px;
+    padding:10px;
+    border-radius:8px;
+    display:none;
+    font-size:14px;
+}
+
+.auth-message.error{
+    display:block;
+    background:#421d27;
+    color:#ff9ba9;
+}
+
+.auth-message.success{
+    display:block;
+    background:#153b2c;
+    color:#75e0aa;
+}
+
+/* APP */
+
+#app{
+    display:none;
+}
+
+.header{
+    background:#11192c;
+    border:1px solid #273553;
+    border-radius:14px;
+    padding:16px 20px;
+    margin-bottom:18px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:bold;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.user-email{
+    color:#9ca8c4;
+    font-size:13px;
+}
+
+.cloud-status{
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    background:#23304d;
+}
+
+.cloud-status.error{
+    background:#54212a;
+    color:#ff9aa8;
+}
+
+.cloud-status.connected{
+    background:#153c2d;
+    color:#75e0aa;
+}
+
+.nav{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+}
+
+.nav button{
+    border:1px solid #293755;
+    background:#121a2e;
+    color:#9ca8c4;
+    padding:10px 15px;
+    border-radius:9px;
+}
+
+.nav button.active{
+    background:#356dff;
+    border-color:#356dff;
+    color:#fff;
+}
+
+.tab{
+    display:none;
+}
+
+.tab.active{
+    display:block;
+}
+
+/* CARDS */
+
+.card{
+    background:#121a2e;
+    border:1px solid #273553;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.card h2{
+    margin-top:0;
+}
+
+.card h3{
+    margin-top:0;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+}
+
+.stat{
+    background:#0d1426;
+    border:1px solid #273553;
+    border-radius:12px;
+    padding:16px;
+}
+
+.stat-label{
+    color:#8e9ab8;
+    font-size:13px;
+    margin-bottom:7px;
+}
+
+.stat-value{
+    font-size:25px;
+    font-weight:bold;
+}
+
+/* TABLE */
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1000px;
+}
+
+th,
+td{
+    border-bottom:1px solid #25314d;
+    padding:10px;
+    text-align:left;
+    white-space:nowrap;
+}
+
+th{
+    color:#8e9ab8;
+    font-size:13px;
+    background:#10182b;
+}
+
+td{
+    font-size:14px;
+}
+
+.table-input{
+    width:110px;
+    padding:7px;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    background:#263452;
+    color:#b9c6e5;
+    font-size:12px;
+}
+
+.badge.eval{
+    background:#3b3158;
+    color:#d2baff;
+}
+
+.badge.funded{
+    background:#174c3a;
+    color:#83e2b2;
+}
+
+/* RULE BOX */
+
+.rule-preview{
+    background:#0c1528;
+    border:1px solid #304263;
+    border-radius:12px;
+    padding:15px;
+    margin-top:15px;
+}
+
+.rule-values{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:10px;
+    margin-top:12px;
+}
+
+.rule-value{
+    background:#121d34;
+    padding:10px;
+    border-radius:8px;
+}
+
+.rule-value span{
+    display:block;
+    color:#8794b1;
+    font-size:12px;
+}
+
+.rule-value strong{
+    display:block;
+    margin-top:4px;
+}
+
+/* RULE EDIT */
+
+.editing-box{
+    display:none;
+    background:#17243d;
+    border:1px solid #4563a0;
+    padding:12px;
+    border-radius:9px;
+    margin-bottom:15px;
+}
+
+/* CALCULATOR */
+
+.calc-result{
+    background:#0b1427;
+    border:1px solid #2c3e65;
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+}
+
+.calc-main{
+    font-size:34px;
+    font-weight:bold;
+    margin:8px 0;
+}
+
+.calc-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px;
+}
+
+.calc-item{
+    background:#131e35;
+    border-radius:10px;
+    padding:14px;
+}
+
+.calc-item span{
+    display:block;
+    color:#8996b4;
+    font-size:12px;
+}
+
+.calc-item strong{
+    display:block;
+    margin-top:5px;
+    font-size:19px;
+}
+
+/* NOTICE */
+
+.notice{
+    padding:13px;
+    border-radius:9px;
+    background:#182640;
+    border:1px solid #2e4168;
+    color:#aebde0;
+    margin-bottom:15px;
+}
+
+.warning{
+    background:#3b3020;
+    border-color:#69522c;
+    color:#e8c985;
+}
+
+/* EMPTY */
+
+.empty{
+    padding:30px;
+    text-align:center;
+    color:#74809c;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    .container{
+        padding:12px;
+    }
+
+    .header{
+        align-items:flex-start;
+    }
+
+    .stat-value{
+        font-size:21px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- ================= LOGIN ================= -->
+
+<div id="loginScreen" class="login-screen">
+
+    <div class="login-box">
+
+        <h1>Risk Dashboard</h1>
+
+        <div class="subtitle">
+            Futures Prop-Firm Risk Management
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Email</label>
+
+            <input
+                id="authEmail"
+                type="email"
+                placeholder="Enter your email"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Password</label>
+
+            <input
+                id="authPassword"
+                type="password"
+                placeholder="Enter password"
+            >
+
+        </div>
+
+
+        <button
+            id="authButton"
+            class="primary-btn"
+            onclick="handleAuth()"
+        >
+            Login
+        </button>
+
+
+        <div
+            id="authMessage"
+            class="auth-message"
+        ></div>
+
+
+        <div class="auth-switch">
+
+            <span id="authModeText">
+                Don't have an account?
+            </span>
+
+            <span onclick="toggleAuthMode()">
+                <b id="authModeLink">Create Account</b>
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= APP ================= -->
+
+<div id="app">
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="logo">
+            📊 Risk Dashboard
+        </div>
+
+        <div class="header-right">
+
+            <div
+                id="cloudStatus"
+                class="cloud-status"
+            >
+                Connecting...
+            </div>
+
+            <div
+                id="loggedInEmail"
+                class="user-email"
+            ></div>
+
+            <button
+                class="secondary-btn"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- NAV -->
+
+    <div class="nav">
+
+        <button
+            class="active"
+            onclick="openTab('dashboard',this)"
+        >
+            Dashboard
+        </button>
+
+        <button
+            onclick="openTab('rules',this)"
+        >
+            Prop Firms & Rules
+        </button>
+
+        <button
+            onclick="openTab('calculator',this)"
+        >
+            Risk Calculator
+        </button>
+
+    </div>
+
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <div
+        id="dashboard"
+        class="tab active"
+    >
+
+        <div class="notice">
+
+            <b>Default Trading Rules</b><br>
+
+            Evaluation:
+            <b>2 NQ / 25 SL / 38 TP</b><br>
+
+            Funded - 1st trade:
+            <b>2 NQ / 25 SL / 100 TP</b><br>
+
+            Winning Funded:
+            <b>2 NQ / 10 SL / 10 TP</b>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="grid">
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Total Accounts
+                </div>
+
+                <div
+                    id="totalAccounts"
+                    class="stat-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Evaluation
+                </div>
+
+                <div
+                    id="evaluationAccounts"
+                    class="stat-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Funded
+                </div>
+
+                <div
+                    id="fundedAccounts"
+                    class="stat-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Total Account Size
+                </div>
+
+                <div
+                    id="totalSize"
+                    class="stat-value"
+                >
+                    $0
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ADD ACCOUNT -->
+
+        <div class="card">
+
+            <h2>Add Account</h2>
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>Prop Firm</label>
+
+                    <select
+                        id="accountFirm"
+                        onchange="updateAccountSizeOptions()"
+                    ></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Account Size</label>
+
+                    <select
+                        id="accountSize"
+                        onchange="updateAccountRulePreview()"
+                    ></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Stage</label>
+
+                    <select
+                        id="accountStage"
+                        onchange="updateAccountRulePreview()"
+                    >
+
+                        <option>
+                            Evaluation
+                        </option>
+
+                        <option>
+                            Funded - 1st trade
+                        </option>
+
+                        <option>
+                            Winning Funded
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Account Number</label>
+
+                    <input
+                        id="accountNumber"
+                        placeholder="Optional"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Current Balance ($)</label>
+
+                    <input
+                        id="accountBalance"
+                        type="number"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Current Drawdown ($)</label>
+
+                    <input
+                        id="accountDrawdown"
+                        type="number"
+                        value="0"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div id="accountRulePreview"></div>
+
+
+            <div style="margin-top:15px">
+
+                <label>Notes</label>
+
+                <textarea
+                    id="accountNotes"
+                    rows="3"
+                    placeholder="Optional notes"
+                ></textarea>
+
+            </div>
+
+
+            <button
+                class="primary-btn"
+                style="margin-top:15px"
+                onclick="addAccount()"
+            >
+                Add Account
+            </button>
+
+        </div>
+
+
+
+        <!-- ACCOUNTS -->
+
+        <div class="card">
+
+            <h2>Account Roster</h2>
+
+            <div
+                id="accountTable"
+                class="table-wrapper"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= RULES ================= -->
+
+    <div
+        id="rules"
+        class="tab"
+    >
+
+
+        <!-- ADD FIRM -->
+
+        <div class="card">
+
+            <h2>Prop Firms</h2>
+
+            <div class="grid">
+
+                <div>
+
+                    <label>New Prop Firm</label>
+
+                    <input
+                        id="newFirmName"
+                        placeholder="e.g. Topstep"
+                    >
+
+                </div>
+
+            </div>
+
+            <button
+                class="primary-btn"
+                style="margin-top:15px"
+                onclick="addFirm()"
+            >
+                Add Prop Firm
+            </button>
+
+
+            <div
+                id="firmsTable"
+                class="table-wrapper"
+                style="margin-top:20px"
+            ></div>
+
+        </div>
+
+
+
+        <!-- RULE -->
+
+        <div class="card">
+
+            <h2 id="ruleFormTitle">
+                Add Trading Rule
+            </h2>
+
+
+            <div
+                id="editingBox"
+                class="editing-box"
+            >
+                <b>
+                    You are editing an existing rule.
+                </b>
+            </div>
+
+
+            <div class="grid">
+
+
+                <div class="form-group">
+
+                    <label>Prop Firm</label>
+
+                    <select
+                        id="ruleFirm"
+                    ></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Account Size</label>
+
+                    <input
+                        id="ruleSize"
+                        type="number"
+                        value="50000"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Stage</label>
+
+                    <select id="ruleStage">
+
+                        <option>
+                            Evaluation
+                        </option>
+
+                        <option>
+                            Funded - 1st trade
+                        </option>
+
+                        <option>
+                            Winning Funded
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>NQ Contracts</label>
+
+                    <input
+                        id="ruleContracts"
+                        type="number"
+                        min="1"
+                        value="2"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Stop Loss Points</label>
+
+                    <input
+                        id="ruleSL"
+                        type="number"
+                        value="25"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Take Profit Points</label>
+
+                    <input
+                        id="ruleTP"
+                        type="number"
+                        value="38"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div style="display:flex;gap:10px;margin-top:15px;flex-wrap:wrap">
+
+                <button
+                    id="saveRuleButton"
+                    class="primary-btn"
+                    style="width:auto"
+                    onclick="saveRule()"
+                >
+                    Add Rule
+                </button>
+
+                <button
+                    id="cancelEditButton"
+                    class="secondary-btn"
+                    style="display:none"
+                    onclick="cancelRuleEdit()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SAVED RULES -->
+
+        <div class="card">
+
+            <h2>Saved Rules</h2>
+
+            <div
+                id="rulesTable"
+                class="table-wrapper"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= CALCULATOR ================= -->
+
+    <div
+        id="calculator"
+        class="tab"
+    >
+
+        <div class="card">
+
+            <h2>Risk Calculator</h2>
+
+
+            <div class="grid">
+
+
+                <div class="form-group">
+
+                    <label>Instrument</label>
+
+                    <select id="calcInstrument">
+
+                        <option value="NQ">
+                            NQ
+                        </option>
+
+                        <option value="MNQ">
+                            MNQ
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Contracts</label>
+
+                    <input
+                        id="calcContracts"
+                        type="number"
+                        value="2"
+                        min="1"
+                        oninput="calculateRisk()"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Stop Loss Points</label>
+
+                    <input
+                        id="calcSL"
+                        type="number"
+                        value="25"
+                        min="0"
+                        oninput="calculateRisk()"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Take Profit Points</label>
+
+                    <input
+                        id="calcTP"
+                        type="number"
+                        value="38"
+                        min="0"
+                        oninput="calculateRisk()"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="calc-result"
+                style="margin-top:20px"
+            >
+
+                <div>
+                    Risk / Reward
+                </div>
+
+                <div
+                    id="calcRR"
+                    class="calc-main"
+                >
+                    1.52R
+                </div>
+
+                <div
+                    id="calcRRText"
+                    style="color:#8996b4"
+                >
+                    Risk $1,000 → Reward $1,520
+                </div>
+
+            </div>
+
+
+            <div
+                class="calc-grid"
+                style="margin-top:15px"
+            >
+
+                <div class="calc-item">
+
+                    <span>
+                        $ / Point / Contract
+                    </span>
+
+                    <strong id="calcPointValue">
+                        $20
+                    </strong>
+
+                </div>
+
+
+                <div class="calc-item">
+
+                    <span>
+                        Total Risk
+                    </span>
+
+                    <strong id="calcRisk">
+                        $1,000
+                    </strong>
+
+                </div>
+
+
+                <div class="calc-item">
+
+                    <span>
+                        Total Reward
+                    </span>
+
+                    <strong id="calcReward">
+                        $1,520
+                    </strong>
+
+                </div>
+
+
+                <div class="calc-item">
+
+                    <span>
+                        Break Even Win Rate
+                    </span>
+
+                    <strong id="calcBE">
+                        39.22%
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <h2>Default Strategy Examples</h2>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Stage</th>
+                            <th>Contracts</th>
+                            <th>SL</th>
+                            <th>TP</th>
+                            <th>Risk</th>
+                            <th>Reward</th>
+                            <th>R:R</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                <span class="badge eval">
+                                    Evaluation
+                                </span>
+                            </td>
+
+                            <td>2 NQ</td>
+                            <td>25</td>
+                            <td>38</td>
+                            <td>$1,000</td>
+                            <td>$1,520</td>
+                            <td>1.52R</td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                <span class="badge funded">
+                                    Funded - 1st trade
+                                </span>
+                            </td>
+
+                            <td>2 NQ</td>
+                            <td>25</td>
+                            <td>100</td>
+                            <td>$1,000</td>
+                            <td>$4,000</td>
+                            <td>4.00R</td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                <span class="badge funded">
+                                    Winning Funded
+                                </span>
+                            </td>
+
+                            <td>2 NQ</td>
+                            <td>10</td>
+                            <td>10</td>
+                            <td>$400</td>
+                            <td>$400</td>
+                            <td>1.00R</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   SUPABASE CONFIG
+========================================================= */
+
+const SUPABASE_URL =
+    "https://etrpncridawyzqckebaf.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_dgWAC75qxTsyYwD3X7upeg_qQE693Ap";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+
+/* =========================================================
+   DEFAULT DATA
+========================================================= */
+
+const DEFAULT_DATA = {
+
+    firms:[
+        "Topstep"
+    ],
+
+    rules:[
+
+        {
+            firm:"Topstep",
+            size:50000,
+            stage:"Evaluation",
+            contracts:2,
+            sl:25,
+            tp:38
+        },
+
+        {
+            firm:"Topstep",
+            size:50000,
+            stage:"Funded - 1st trade",
+            contracts:2,
+            sl:25,
+            tp:100
+        },
+
+        {
+            firm:"Topstep",
+            size:50000,
+            stage:"Winning Funded",
+            contracts:2,
+            sl:10,
+            tp:10
+        }
+
+    ],
+
+    accounts:[]
+
+};
+
+
+
+/* =========================================================
+   APP STATE
+========================================================= */
+
+let currentSession = null;
+
+let data = {
+    firms:[],
+    rules:[],
+    accounts:[]
+};
+
+let authMode = "login";
+
+let editingRuleIndex = null;
+
+let appStartedForUser = null;
+
+let authInitializing = true;
+
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        initializeAuth();
+
+        calculateRisk();
+
+    }
+);
+
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+async function initializeAuth(){
+
+    try{
+
+        const {
+            data:sessionData,
+            error
+        } =
+        await supabaseClient.auth.getSession();
+
+
+        if(error){
+            throw error;
+        }
+
+
+        currentSession =
+            sessionData.session;
+
+
+        if(currentSession){
+
+            await startCloudApp(
+                currentSession
+            );
+
+        }
+        else{
+
+            showLogin();
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Auth initialization error:",
+            error
+        );
+
+        currentSession = null;
+
+        showLogin();
+
+        showAuthError(
+            error.message ||
+            "Authentication initialization failed."
+        );
+
+    }
+
+
+    authInitializing = false;
+
+
+    supabaseClient.auth.onAuthStateChange(
+        function(event,session){
+
+            console.log(
+                "Supabase auth event:",
+                event
+            );
+
+
+            currentSession = session;
+
+
+            setTimeout(
+                function(){
+
+                    if(session){
+
+                        startCloudApp(
+                            session
+                        );
+
+                    }
+                    else{
+
+                        appStartedForUser = null;
+
+                        data = {
+                            firms:[],
+                            rules:[],
+                            accounts:[]
+                        };
+
+                        showLogin();
+
+                    }
+
+                },
+                0
+            );
+
+        }
+    );
+
+}
+
+
+
+async function startCloudApp(
+    session=currentSession
+){
+
+    if(!session){
+
+        showLogin();
+
+        return;
+
+    }
+
+
+    const userId =
+        session.user.id;
+
+
+    if(
+        appStartedForUser === userId
+    ){
+
+        console.log(
+            "Dashboard already started."
+        );
+
+        return;
+
+    }
+
+
+    appStartedForUser = userId;
+
+    currentSession = session;
+
+
+    document.getElementById(
+        "loggedInEmail"
+    ).textContent =
+        session.user.email;
+
+
+    showApp();
+
+
+    setCloudStatus(
+        "Connecting...",
+        false
+    );
+
+
+    try{
+
+        await loadCloudData();
+
+
+        renderAll();
+
+
+        updateAccountRulePreview();
+
+
+        setCloudStatus(
+            "Cloud Connected",
+            false
+        );
+
+
+        console.log(
+            "Risk Dashboard loaded successfully."
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Cloud data load error:",
+            error
+        );
+
+
+        appStartedForUser = null;
+
+
+        setCloudStatus(
+            "Cloud Error",
+            true
+        );
+
+
+        showSyncMessage(
+            "Cloud data load failed: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+
+function showLogin(){
+
+    document.getElementById(
+        "loginScreen"
+    ).style.display = "flex";
+
+
+    document.getElementById(
+        "app"
+    ).style.display = "none";
+
+}
+
+
+
+function showApp(){
+
+    document.getElementById(
+        "loginScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "app"
+    ).style.display = "block";
+
+}
+
+
+
+function showAuthError(message){
+
+    const box =
+        document.getElementById(
+            "authMessage"
+        );
+
+    box.textContent = message;
+
+    box.className =
+        "auth-message error";
+
+}
+
+
+
+function showAuthSuccess(message){
+
+    const box =
+        document.getElementById(
+            "authMessage"
+        );
+
+    box.textContent = message;
+
+    box.className =
+        "auth-message success";
+
+}
+
+
+
+function toggleAuthMode(){
+
+    authMode =
+        authMode === "login"
+        ? "signup"
+        : "login";
+
+
+    document.getElementById(
+        "authButton"
+    ).textContent =
+        authMode === "login"
+        ? "Login"
+        : "Create Account";
+
+
+    document.getElementById(
+        "authModeText"
+    ).textContent =
+        authMode === "login"
+        ? "Don't have an account?"
+        : "Already have an account?";
+
+
+    document.getElementById(
+        "authModeLink"
+    ).textContent =
+        authMode === "login"
+        ? "Create Account"
+        : "Login";
+
+
+    document.getElementById(
+        "authMessage"
+    ).className =
+        "auth-message";
+
+}
+
+
+
+async function handleAuth(){
+
+    const email =
+        document.getElementById(
+            "authEmail"
+        ).value.trim();
+
+
+    const password =
+        document.getElementById(
+            "authPassword"
+        ).value;
+
+
+    if(!email || !password){
+
+        showAuthError(
+            "Email and password required."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "authButton"
+    ).disabled = true;
+
+
+    try{
+
+        if(authMode === "signup"){
+
+            const {
+                data:result,
+                error
+            } =
+            await supabaseClient.auth.signUp({
+
+                email:email,
+
+                password:password,
+
+                options:{
+                    emailRedirectTo:
+                        window.location.origin
+                }
+
+            });
+
+
+            if(error){
+                throw error;
+            }
+
+
+            if(result.session){
+
+                currentSession =
+                    result.session;
+
+                appStartedForUser = null;
+
+                await startCloudApp(
+                    result.session
+                );
+
+            }
+            else{
+
+                showAuthSuccess(
+                    "Account created. Please check your email and confirm your account."
+                );
+
+            }
+
+        }
+        else{
+
+            const {
+                data:result,
+                error
+            } =
+            await supabaseClient.auth.signInWithPassword({
+
+                email:email,
+
+                password:password
+
+            });
+
+
+            if(error){
+                throw error;
+            }
+
+
+            currentSession =
+                result.session;
+
+            appStartedForUser = null;
+
+            await startCloudApp(
+                result.session
+            );
+
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        showAuthError(
+            error.message
+        );
+
+    }
+    finally{
+
+        document.getElementById(
+            "authButton"
+        ).disabled = false;
+
+    }
+
+}
+
+
+
+async function logout(){
+
+    try{
+
+        await supabaseClient.auth.signOut();
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+
+    currentSession = null;
+
+    appStartedForUser = null;
+
+    data = {
+        firms:[],
+        rules:[],
+        accounts:[]
+    };
+
+    showLogin();
+
+}
+
+
+
+/* =========================================================
+   CLOUD DATA
+========================================================= */
+
+async function loadCloudData(){
+
+    if(!currentSession){
+        throw new Error(
+            "No active session."
+        );
+    }
+
+
+    const userId =
+        currentSession.user.id;
+
+
+    const [
+        firmsResponse,
+        rulesResponse,
+        accountsResponse
+    ] =
+    await Promise.all([
+
+        supabaseClient
+            .from("firms")
+            .select("*")
+            .eq("user_id",userId)
+            .order("created_at",{ascending:true}),
+
+        supabaseClient
+            .from("rules")
+            .select("*")
+            .eq("user_id",userId)
+            .order("created_at",{ascending:true}),
+
+        supabaseClient
+            .from("accounts")
+            .select("*")
+            .eq("user_id",userId)
+            .order("created_at",{ascending:true})
+
+    ]);
+
+
+    if(firmsResponse.error){
+        throw firmsResponse.error;
+    }
+
+    if(rulesResponse.error){
+        throw rulesResponse.error;
+    }
+
+    if(accountsResponse.error){
+        throw accountsResponse.error;
+    }
+
+
+    /*
+       If account is completely new,
+       create default Topstep rules.
+    */
+
+    if(
+        firmsResponse.data.length === 0 &&
+        rulesResponse.data.length === 0
+    ){
+
+        await migrateDefaultData();
+
+        return loadCloudData();
+
+    }
+
+
+    data.firms =
+        firmsResponse.data.map(
+            row => row.name
+        );
+
+
+    data.rules =
+        rulesResponse.data.map(
+            row => ({
+
+                id:row.id,
+
+                firm:row.firm,
+
+                size:Number(row.account_size),
+
+                stage:row.stage,
+
+                contracts:Number(row.contracts),
+
+                sl:Number(row.sl_points),
+
+                tp:Number(row.tp_points)
+
+            })
+        );
+
+
+    data.accounts =
+        accountsResponse.data.map(
+            row => ({
+
+                id:row.id,
+
+                firm:row.firm,
+
+                size:Number(row.account_size),
+
+                accountNumber:
+                    row.account_number || "",
+
+                stage:row.stage,
+
+                balance:Number(row.balance || 0),
+
+                drawdown:Number(row.drawdown || 0),
+
+                notes:row.notes || ""
+
+            })
+        );
+
+}
+
+
+
+async function migrateDefaultData(){
+
+    if(!currentSession){
+        return;
+    }
+
+
+    const userId =
+        currentSession.user.id;
+
+
+    for(
+        const firmName
+        of DEFAULT_DATA.firms
+    ){
+
+        await supabaseClient
+            .from("firms")
+            .insert({
+
+                user_id:userId,
+
+                name:firmName
+
+            });
+
+    }
+
+
+    for(
+        const rule
+        of DEFAULT_DATA.rules
+    ){
+
+        await supabaseClient
+            .from("rules")
+            .insert({
+
+                user_id:userId,
+
+                firm:rule.firm,
+
+                account_size:rule.size,
+
+                stage:rule.stage,
+
+                contracts:rule.contracts,
+
+                sl_points:rule.sl,
+
+                tp_points:rule.tp
+
+            });
+
+    }
+
+}
+
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+function openTab(tabId,button){
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(
+            tab =>
+            tab.classList.remove("active")
+        );
+
+
+    document
+        .querySelectorAll(".nav button")
+        .forEach(
+            btn =>
+            btn.classList.remove("active")
+        );
+
+
+    document
+        .getElementById(tabId)
+        .classList.add("active");
+
+
+    button.classList.add("active");
+
+}
+
+
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll(){
+
+    renderFirmSelects();
+
+    renderAccountSizeOptions();
+
+    renderRulesTable();
+
+    renderFirmsTable();
+
+    renderAccounts();
+
+    updateStats();
+
+    calculateRisk();
+
+}
+
+
+
+/* =========================================================
+   FIRM SELECTS
+========================================================= */
+
+function renderFirmSelects(){
+
+    const ruleFirm =
+        document.getElementById(
+            "ruleFirm"
+        );
+
+    const accountFirm =
+        document.getElementById(
+            "accountFirm"
+        );
+
+
+    const currentRuleFirm =
+        ruleFirm.value;
+
+    const currentAccountFirm =
+        accountFirm.value;
+
+
+    ruleFirm.innerHTML = "";
+
+    accountFirm.innerHTML = "";
+
+
+    data.firms.forEach(
+        firm => {
+
+            const option1 =
+                document.createElement(
+                    "option"
+                );
+
+            option1.value = firm;
+
+            option1.textContent = firm;
+
+            ruleFirm.appendChild(
+                option1
+            );
+
+
+            const option2 =
+                document.createElement(
+                    "option"
+                );
+
+            option2.value = firm;
+
+            option2.textContent = firm;
+
+            accountFirm.appendChild(
+                option2
+            );
+
+        }
+    );
+
+
+    if(
+        data.firms.includes(
+            currentRuleFirm
+        )
+    ){
+
+        ruleFirm.value =
+            currentRuleFirm;
+
+    }
+
+
+    if(
+        data.firms.includes(
+            currentAccountFirm
+        )
+    ){
+
+        accountFirm.value =
+            currentAccountFirm;
+
+    }
+
+}
+
+
+
+function updateAccountSizeOptions(){
+
+    renderAccountSizeOptions();
+
+    updateAccountRulePreview();
+
+}
+
+
+
+function renderAccountSizeOptions(){
+
+    const firm =
+        document.getElementById(
+            "accountFirm"
+        ).value;
+
+
+    const sizeSelect =
+        document.getElementById(
+            "accountSize"
+        );
+
+
+    const oldValue =
+        sizeSelect.value;
+
+
+    sizeSelect.innerHTML = "";
+
+
+    const sizes = [];
+
+
+    data.rules
+        .filter(
+            rule =>
+            rule.firm === firm
+        )
+        .forEach(
+            rule => {
+
+                if(
+                    !sizes.includes(
+                        Number(rule.size)
+                    )
+                ){
+
+                    sizes.push(
+                        Number(rule.size)
+                    );
+
+                }
+
+            }
+        );
+
+
+    sizes.sort(
+        (a,b)=>a-b
+    );
+
+
+    if(sizes.length === 0){
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = "50000";
+
+        option.textContent =
+            "$50,000";
+
+        sizeSelect.appendChild(
+            option
+        );
+
+    }
+    else{
+
+        sizes.forEach(
+            size => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value = size;
+
+                option.textContent =
+                    "$" +
+                    size.toLocaleString();
+
+                sizeSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+
+
+    if(
+        sizes.includes(
+            Number(oldValue)
+        )
+    ){
+
+        sizeSelect.value =
+            oldValue;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   RULE FINDER
+========================================================= */
+
+function getRule(
+    firm,
+    size,
+    stage
+){
+
+    return data.rules.find(
+        rule =>
+
+        String(rule.firm).trim() ===
+        String(firm || "").trim()
+
+        &&
+
+        Number(rule.size) ===
+        Number(size)
+
+        &&
+
+        String(rule.stage).trim() ===
+        String(stage || "").trim()
+
+    );
+
+}
+
+
+
+/* =========================================================
+   ACCOUNT RULE PREVIEW
+========================================================= */
+
+function updateAccountRulePreview(){
+
+    const firm =
+        document.getElementById(
+            "accountFirm"
+        ).value;
+
+
+    const size =
+        Number(
+            document.getElementById(
+                "accountSize"
+            ).value
+        );
+
+
+    const stage =
+        document.getElementById(
+            "accountStage"
+        ).value;
+
+
+    const rule =
+        getRule(
+            firm,
+            size,
+            stage
+        );
+
+
+    const box =
+        document.getElementById(
+            "accountRulePreview"
+        );
+
+
+    if(!rule){
+
+        box.innerHTML = `
+
+            <div class="notice warning">
+
+                No rule exists for this
+                firm / size / stage.
+
+                <br><br>
+
+                Add it in
+                <b>Prop Firms & Rules</b> first.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const risk =
+        rule.contracts *
+        rule.sl *
+        20;
+
+
+    const reward =
+        rule.contracts *
+        rule.tp *
+        20;
+
+
+    const rr =
+        rule.sl > 0
+        ? rule.tp / rule.sl
+        : 0;
+
+
+    box.innerHTML = `
+
+        <div class="rule-preview">
+
+            <b>
+                Selected Trading Rule
+            </b>
+
+            <div class="rule-values">
+
+                <div class="rule-value">
+                    <span>Contracts</span>
+                    <strong>
+                        ${rule.contracts} NQ
+                    </strong>
+                </div>
+
+                <div class="rule-value">
+                    <span>Stop Loss</span>
+                    <strong>
+                        ${rule.sl} points
+                    </strong>
+                </div>
+
+                <div class="rule-value">
+                    <span>Take Profit</span>
+                    <strong>
+                        ${rule.tp} points
+                    </strong>
+                </div>
+
+                <div class="rule-value">
+                    <span>Risk</span>
+                    <strong>
+                        $${risk.toLocaleString()}
+                    </strong>
+                </div>
+
+                <div class="rule-value">
+                    <span>Reward</span>
+                    <strong>
+                        $${reward.toLocaleString()}
+                    </strong>
+                </div>
+
+                <div class="rule-value">
+                    <span>R:R</span>
+                    <strong>
+                        ${rr.toFixed(2)}R
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+/* =========================================================
+   ADD ACCOUNT
+========================================================= */
+
+async function addAccount(){
+
+    if(!currentSession){
+
+        alert(
+            "Please login first."
+        );
+
+        return;
+
+    }
+
+
+    const firm =
+        document.getElementById(
+            "accountFirm"
+        ).value;
+
+
+    const size =
+        Number(
+            document.getElementById(
+                "accountSize"
+            ).value
+        );
+
+
+    const stage =
+        document.getElementById(
+            "accountStage"
+        ).value;
+
+
+    const accountNumber =
+        document.getElementById(
+            "accountNumber"
+        ).value.trim();
+
+
+    const balance =
+        Number(
+            document.getElementById(
+                "accountBalance"
+            ).value || 0
+        );
+
+
+    const drawdown =
+        Number(
+            document.getElementById(
+                "accountDrawdown"
+            ).value || 0
+        );
+
+
+    const notes =
+        document.getElementById(
+            "accountNotes"
+        ).value.trim();
+
+
+    const rule =
+        getRule(
+            firm,
+            size,
+            stage
+        );
+
+
+    if(!rule){
+
+        alert(
+            "No rule exists for this firm/size/stage. Add the rule first."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data:inserted,
+        error
+    } =
+    await supabaseClient
+        .from("accounts")
+        .insert({
+
+            user_id:
+                currentSession.user.id,
+
+            firm:firm,
+
+            account_size:size,
+
+            account_number:
+                accountNumber,
+
+            stage:stage,
+
+            balance:balance,
+
+            drawdown:drawdown,
+
+            notes:notes
+
+        })
+        .select();
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    if(inserted){
+
+        data.accounts.push({
+
+            id:inserted[0].id,
+
+            firm:firm,
+
+            size:size,
+
+            accountNumber:
+                accountNumber,
+
+            stage:stage,
+
+            balance:balance,
+
+            drawdown:drawdown,
+
+            notes:notes
+
+        });
+
+    }
+
+
+    document.getElementById(
+        "accountNumber"
+    ).value = "";
+
+    document.getElementById(
+        "accountBalance"
+    ).value = "0";
+
+    document.getElementById(
+        "accountDrawdown"
+    ).value = "0";
+
+    document.getElementById(
+        "accountNotes"
+    ).value = "";
+
+
+    renderAccounts();
+
+    updateStats();
+
+}
+
+
+
+/* =========================================================
+   RENDER ACCOUNTS
+========================================================= */
+
+function renderAccounts(){
+
+    const container =
+        document.getElementById(
+            "accountTable"
+        );
+
+
+    if(data.accounts.length === 0){
+
+        container.innerHTML = `
+
+            <div class="empty">
+                No accounts added yet.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Firm</th>
+                    <th>Stage</th>
+                    <th>Account #</th>
+                    <th>Size</th>
+                    <th>Balance</th>
+                    <th>Drawdown</th>
+                    <th>NQ Contracts</th>
+                    <th>SL</th>
+                    <th>TP</th>
+                    <th>Risk</th>
+                    <th>Reward</th>
+                    <th>R:R</th>
+                    <th>Delete</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+    `;
+
+
+    data.accounts.forEach(
+        account => {
+
+            const rule =
+                getRule(
+                    account.firm,
+                    account.size,
+                    account.stage
+                );
+
+
+            let contracts = 0;
+            let sl = 0;
+            let tp = 0;
+            let risk = 0;
+            let reward = 0;
+            let rr = 0;
+
+
+            if(rule){
+
+                contracts =
+                    rule.contracts;
+
+                sl =
+                    rule.sl;
+
+                tp =
+                    rule.tp;
+
+                risk =
+                    contracts *
+                    sl *
+                    20;
+
+                reward =
+                    contracts *
+                    tp *
+                    20;
+
+                rr =
+                    sl > 0
+                    ? tp / sl
+                    : 0;
+
+            }
+
+
+            const stageClass =
+                account.stage === "Evaluation"
+                ? "eval"
+                : "funded";
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        <b>
+                            ${escapeHtml(account.firm)}
+                        </b>
+                    </td>
+
+
+                    <td>
+
+                        <span class="badge ${stageClass}">
+                            ${escapeHtml(account.stage)}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            account.accountNumber || "-"
+                        )}
+                    </td>
+
+
+                    <td>
+                        $${Number(account.size).toLocaleString()}
+                    </td>
+
+
+                    <td>
+
+                        <input
+                            class="table-input"
+                            type="number"
+                            value="${account.balance}"
+                            onchange="updateBalance('${account.id}',this.value)"
+                        >
+
+                    </td>
+
+
+                    <td>
+
+                        <input
+                            class="table-input"
+                            type="number"
+                            value="${account.drawdown}"
+                            onchange="updateDrawdown('${account.id}',this.value)"
+                        >
+
+                    </td>
+
+
+                    <td>
+                        ${contracts}
+                    </td>
+
+
+                    <td>
+                        ${sl}
+                    </td>
+
+
+                    <td>
+                        ${tp}
+                    </td>
+
+
+                    <td>
+                        $${risk.toLocaleString()}
+                    </td>
+
+
+                    <td>
+                        $${reward.toLocaleString()}
+                    </td>
+
+
+                    <td>
+                        ${rr.toFixed(2)}R
+                    </td>
+
+
+                    <td>
+
+                        <button
+                            class="danger-btn"
+                            onclick="deleteAccount('${account.id}')"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    container.innerHTML = html;
+
+}
+
+
+
+/* =========================================================
+   UPDATE BALANCE
+========================================================= */
+
+async function updateBalance(
+    id,
+    value
+){
+
+    const balance =
+        Number(value || 0);
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("accounts")
+        .update({
+            balance:balance
+        })
+        .eq(
+            "id",
+            id
+        )
+        .eq(
+            "user_id",
+            currentSession.user.id
+        );
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    const account =
+        data.accounts.find(
+            a => a.id === id
+        );
+
+
+    if(account){
+
+        account.balance =
+            balance;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   UPDATE DRAWDOWN
+========================================================= */
+
+async function updateDrawdown(
+    id,
+    value
+){
+
+    const drawdown =
+        Number(value || 0);
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("accounts")
+        .update({
+            drawdown:drawdown
+        })
+        .eq(
+            "id",
+            id
+        )
+        .eq(
+            "user_id",
+            currentSession.user.id
+        );
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    const account =
+        data.accounts.find(
+            a => a.id === id
+        );
+
+
+    if(account){
+
+        account.drawdown =
+            drawdown;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   DELETE ACCOUNT
+========================================================= */
+
+async function deleteAccount(id){
+
+    if(
+        !confirm(
+            "Delete this account?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("accounts")
+        .delete()
+        .eq(
+            "id",
+            id
+        )
+        .eq(
+            "user_id",
+            currentSession.user.id
+        );
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    data.accounts =
+        data.accounts.filter(
+            account =>
+            account.id !== id
+        );
+
+
+    renderAccounts();
+
+    updateStats();
+
+}
+
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+
+    const total =
+        data.accounts.length;
+
+
+    const evaluation =
+        data.accounts.filter(
+            a =>
+            a.stage === "Evaluation"
+        ).length;
+
+
+    const funded =
+        data.accounts.filter(
+            a =>
+            a.stage !== "Evaluation"
+        ).length;
+
+
+    const totalSize =
+        data.accounts.reduce(
+            (
+                sum,
+                account
+            ) =>
+            sum +
+            Number(account.size || 0),
+            0
+        );
+
+
+    document.getElementById(
+        "totalAccounts"
+    ).textContent =
+        total;
+
+
+    document.getElementById(
+        "evaluationAccounts"
+    ).textContent =
+        evaluation;
+
+
+    document.getElementById(
+        "fundedAccounts"
+    ).textContent =
+        funded;
+
+
+    document.getElementById(
+        "totalSize"
+    ).textContent =
+        "$" +
+        totalSize.toLocaleString();
+
+}
+
+
+
+/* =========================================================
+   ADD FIRM
+========================================================= */
+
+async function addFirm(){
+
+    const name =
+        document.getElementById(
+            "newFirmName"
+        ).value.trim();
+
+
+    if(!name){
+
+        alert(
+            "Enter a prop firm name."
+        );
+
+        return;
+
+    }
+
+
+    const duplicate =
+        data.firms.some(
+            firm =>
+            firm.toLowerCase() ===
+            name.toLowerCase()
+        );
+
+
+    if(duplicate){
+
+        alert(
+            "This prop firm already exists."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("firms")
+        .insert({
+
+            user_id:
+                currentSession.user.id,
+
+            name:name
+
+        });
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    data.firms.push(name);
+
+
+    document.getElementById(
+        "newFirmName"
+    ).value = "";
+
+
+    renderAll();
+
+}
+
+
+
+/* =========================================================
+   FIRMS TABLE
+========================================================= */
+
+function renderFirmsTable(){
+
+    const container =
+        document.getElementById(
+            "firmsTable"
+        );
+
+
+    if(data.firms.length === 0){
+
+        container.innerHTML =
+            `<div class="empty">
+                No prop firms.
+             </div>`;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Prop Firm</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+    `;
+
+
+    data.firms.forEach(
+        firm => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        <b>
+                            ${escapeHtml(firm)}
+                        </b>
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="danger-btn"
+                            onclick="deleteFirm('${encodeURIComponent(firm)}')"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+
+/* =========================================================
+   DELETE FIRM
+========================================================= */
+
+async function deleteFirm(
+    encodedFirm
+){
+
+    const firm =
+        decodeURIComponent(
+            encodedFirm
+        );
+
+
+    const hasAccounts =
+        data.accounts.some(
+            account =>
+            account.firm === firm
+        );
+
+
+    if(hasAccounts){
+
+        alert(
+            "This firm has accounts. Delete those accounts first."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        !confirm(
+            `Delete ${firm}?`
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("firms")
+        .delete()
+        .eq(
+            "user_id",
+            currentSession.user.id
+        )
+        .eq(
+            "name",
+            firm
+        );
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Also delete its rules.
+    */
+
+    const ruleDelete =
+        await supabaseClient
+            .from("rules")
+            .delete()
+            .eq(
+                "user_id",
+                currentSession.user.id
+            )
+            .eq(
+                "firm",
+                firm
+            );
+
+
+    if(ruleDelete.error){
+
+        console.error(
+            ruleDelete.error
+        );
+
+    }
+
+
+    data.firms =
+        data.firms.filter(
+            f => f !== firm
+        );
+
+
+    data.rules =
+        data.rules.filter(
+            r => r.firm !== firm
+        );
+
+
+    renderAll();
+
+}
+
+
+
+/* =========================================================
+   ADD / UPDATE RULE
+========================================================= */
+
+async function saveRule(){
+
+    const firm =
+        document.getElementById(
+            "ruleFirm"
+        ).value;
+
+
+    const size =
+        Number(
+            document.getElementById(
+                "ruleSize"
+            ).value
+        );
+
+
+    const stage =
+        document.getElementById(
+            "ruleStage"
+        ).value;
+
+
+    const contracts =
+        Number(
+            document.getElementById(
+                "ruleContracts"
+            ).value
+        );
+
+
+    const sl =
+        Number(
+            document.getElementById(
+                "ruleSL"
+            ).value
+        );
+
+
+    const tp =
+        Number(
+            document.getElementById(
+                "ruleTP"
+            ).value
+        );
+
+
+    if(
+        !firm ||
+        !size ||
+        !stage ||
+        !contracts ||
+        sl < 0 ||
+        tp < 0
+    ){
+
+        alert(
+            "Please enter valid rule values."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       EDIT EXISTING RULE
+    */
+
+    if(
+        editingRuleIndex !== null
+    ){
+
+        const oldRule =
+            data.rules[
+                editingRuleIndex
+            ];
+
+
+        const duplicate =
+            data.rules.some(
+                (rule,index) =>
+
+                index !== editingRuleIndex &&
+
+                rule.firm === firm &&
+
+                Number(rule.size) ===
+                Number(size) &&
+
+                rule.stage === stage
+
+            );
+
+
+        if(duplicate){
+
+            alert(
+                "Another rule with the same firm, size and stage already exists."
+            );
+
+            return;
+
+        }
+
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .from("rules")
+            .update({
+
+                firm:firm,
+
+                account_size:size,
+
+                stage:stage,
+
+                contracts:contracts,
+
+                sl_points:sl,
+
+                tp_points:tp
+
+            })
+            .eq(
+                "id",
+                oldRule.id
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(error){
+
+            alert(
+                error.message
+            );
+
+            return;
+
+        }
+
+
+        data.rules[
+            editingRuleIndex
+        ] = {
+
+            id:oldRule.id,
+
+            firm:firm,
+
+            size:size,
+
+            stage:stage,
+
+            contracts:contracts,
+
+            sl:sl,
+
+            tp:tp
+
+        };
+
+
+        cancelRuleEdit();
+
+
+        renderAll();
+
+        updateAccountRulePreview();
+
+        return;
+
+    }
+
+
+
+    /*
+       ADD NEW RULE
+    */
+
+    const duplicate =
+        data.rules.some(
+            rule =>
+
+            rule.firm === firm &&
+
+            Number(rule.size) ===
+            Number(size) &&
+
+            rule.stage === stage
+
+        );
+
+
+    if(duplicate){
+
+        alert(
+            "This rule already exists. Use Edit instead."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data:inserted,
+        error
+    } =
+    await supabaseClient
+        .from("rules")
+        .insert({
+
+            user_id:
+                currentSession.user.id,
+
+            firm:firm,
+
+            account_size:size,
+
+            stage:stage,
+
+            contracts:contracts,
+
+            sl_points:sl,
+
+            tp_points:tp
+
+        })
+        .select();
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    data.rules.push({
+
+        id:inserted[0].id,
+
+        firm:firm,
+
+        size:size,
+
+        stage:stage,
+
+        contracts:contracts,
+
+        sl:sl,
+
+        tp:tp
+
+    });
+
+
+    renderAll();
+
+    updateAccountRulePreview();
+
+}
+
+
+
+/* =========================================================
+   EDIT RULE
+========================================================= */
+
+function editRule(index){
+
+    const rule =
+        data.rules[index];
+
+
+    if(!rule){
+        return;
+    }
+
+
+    editingRuleIndex =
+        index;
+
+
+    document.getElementById(
+        "ruleFirm"
+    ).value =
+        rule.firm;
+
+
+    document.getElementById(
+        "ruleSize"
+    ).value =
+        rule.size;
+
+
+    document.getElementById(
+        "ruleStage"
+    ).value =
+        rule.stage;
+
+
+    document.getElementById(
+        "ruleContracts"
+    ).value =
+        rule.contracts;
+
+
+    document.getElementById(
+        "ruleSL"
+    ).value =
+        rule.sl;
+
+
+    document.getElementById(
+        "ruleTP"
+    ).value =
+        rule.tp;
+
+
+    document.getElementById(
+        "ruleFormTitle"
+    ).textContent =
+        "Edit Trading Rule";
+
+
+    document.getElementById(
+        "saveRuleButton"
+    ).textContent =
+        "Save Changes";
+
+
+    document.getElementById(
+        "cancelEditButton"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "editingBox"
+    ).style.display =
+        "block";
+
+
+    document
+        .getElementById("rules")
+        .scrollIntoView({
+            behavior:"smooth"
+        });
+
+}
+
+
+
+/* =========================================================
+   CANCEL EDIT
+========================================================= */
+
+function cancelRuleEdit(){
+
+    editingRuleIndex = null;
+
+
+    document.getElementById(
+        "ruleFormTitle"
+    ).textContent =
+        "Add Trading Rule";
+
+
+    document.getElementById(
+        "saveRuleButton"
+    ).textContent =
+        "Add Rule";
+
+
+    document.getElementById(
+        "cancelEditButton"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "editingBox"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "ruleContracts"
+    ).value =
+        2;
+
+
+    document.getElementById(
+        "ruleSL"
+    ).value =
+        25;
+
+
+    document.getElementById(
+        "ruleTP"
+    ).value =
+        38;
+
+}
+
+
+
+/* =========================================================
+   DELETE RULE
+========================================================= */
+
+async function deleteRule(index){
+
+    const rule =
+        data.rules[index];
+
+
+    if(!rule){
+        return;
+    }
+
+
+    if(
+        !confirm(
+            `Delete rule: ${rule.firm} / $${rule.size.toLocaleString()} / ${rule.stage}?`
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("rules")
+        .delete()
+        .eq(
+            "id",
+            rule.id
+        )
+        .eq(
+            "user_id",
+            currentSession.user.id
+        );
+
+
+    if(error){
+
+        alert(
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    data.rules.splice(
+        index,
+        1
+    );
+
+
+    if(
+        editingRuleIndex === index
+    ){
+
+        cancelRuleEdit();
+
+    }
+    else if(
+        editingRuleIndex !== null &&
+        index < editingRuleIndex
+    ){
+
+        editingRuleIndex--;
+
+    }
+
+
+    renderAll();
+
+    updateAccountRulePreview();
+
+}
+
+
+
+/* =========================================================
+   RULE TABLE
+========================================================= */
+
+function renderRulesTable(){
+
+    const container =
+        document.getElementById(
+            "rulesTable"
+        );
+
+
+    if(data.rules.length === 0){
+
+        container.innerHTML = `
+
+            <div class="empty">
+                No trading rules saved.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Firm</th>
+                    <th>Account Size</th>
+                    <th>Stage</th>
+                    <th>NQ Contracts</th>
+                    <th>SL</th>
+                    <th>TP</th>
+                    <th>Risk</th>
+                    <th>Reward</th>
+                    <th>R:R</th>
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+    `;
+
+
+    data.rules.forEach(
+        (rule,index) => {
+
+            const risk =
+                rule.contracts *
+                rule.sl *
+                20;
+
+
+            const reward =
+                rule.contracts *
+                rule.tp *
+                20;
+
+
+            const rr =
+                rule.sl > 0
+                ? rule.tp / rule.sl
+                : 0;
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        <b>
+                            ${escapeHtml(rule.firm)}
+                        </b>
+                    </td>
+
+                    <td>
+                        $${Number(rule.size).toLocaleString()}
+                    </td>
+
+                    <td>
+                        <span class="badge ${
+                            rule.stage === "Evaluation"
+                            ? "eval"
+                            : "funded"
+                        }">
+                            ${escapeHtml(rule.stage)}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${rule.contracts}
+                    </td>
+
+                    <td>
+                        ${rule.sl}
+                    </td>
+
+                    <td>
+                        ${rule.tp}
+                    </td>
+
+                    <td>
+                        $${risk.toLocaleString()}
+                    </td>
+
+                    <td>
+                        $${reward.toLocaleString()}
+                    </td>
+
+                    <td>
+                        ${rr.toFixed(2)}R
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="small-btn"
+                            onclick="editRule(${index})"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="danger-btn"
+                            onclick="deleteRule(${index})"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+
+/* =========================================================
+   RISK CALCULATOR
+========================================================= */
+
+function calculateRisk(){
+
+    const instrument =
+        document.getElementById(
+            "calcInstrument"
+        ).value;
+
+
+    const contracts =
+        Number(
+            document.getElementById(
+                "calcContracts"
+            ).value || 0
+        );
+
+
+    const sl =
+        Number(
+            document.getElementById(
+                "calcSL"
+            ).value || 0
+        );
+
+
+    const tp =
+        Number(
+            document.getElementById(
+                "calcTP"
+            ).value || 0
+        );
+
+
+    const pointValue =
+        instrument === "NQ"
+        ? 20
+        : 2;
+
+
+    const risk =
+        contracts *
+        sl *
+        pointValue;
+
+
+    const reward =
+        contracts *
+        tp *
+        pointValue;
+
+
+    const rr =
+        risk > 0
+        ? reward / risk
+        : 0;
+
+
+    const breakEven =
+        (
+            risk + reward
+        ) > 0
+        ? (
+            risk /
+            (
+                risk + reward
+            )
+        ) * 100
+        : 0;
+
+
+    document.getElementById(
+        "calcPointValue"
+    ).textContent =
+        "$" +
+        pointValue;
+
+
+    document.getElementById(
+        "calcRisk"
+    ).textContent =
+        "$" +
+        risk.toLocaleString();
+
+
+    document.getElementById(
+        "calcReward"
+    ).textContent =
+        "$" +
+        reward.toLocaleString();
+
+
+    document.getElementById(
+        "calcRR"
+    ).textContent =
+        rr.toFixed(2) +
+        "R";
+
+
+    document.getElementById(
+        "calcRRText"
+    ).textContent =
+        "Risk $" +
+        risk.toLocaleString() +
+        " → Reward $" +
+        reward.toLocaleString();
+
+
+    document.getElementById(
+        "calcBE"
+    ).textContent =
+        breakEven.toFixed(2) +
+        "%";
+
+}
+
+
+
+/* =========================================================
+   CLOUD STATUS
+========================================================= */
+
+function setCloudStatus(
+    text,
+    error
+){
+
+    const el =
+        document.getElementById(
+            "cloudStatus"
+        );
+
+
+    el.textContent =
+        text;
+
+
+    el.className =
+        "cloud-status";
+
+
+    if(error){
+
+        el.classList.add(
+            "error"
+        );
+
+    }
+    else if(
+        text === "Cloud Connected"
+    ){
+
+        el.classList.add(
+            "connected"
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   SYNC MESSAGE
+========================================================= */
+
+function showSyncMessage(
+    message
+){
+
+    console.error(
+        message
+    );
+
+}
+
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(
+    value
+){
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+</script>
+
+</body>
+</html>
