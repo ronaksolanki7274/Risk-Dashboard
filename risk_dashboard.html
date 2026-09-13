@@ -3193,171 +3193,6 @@ window.deleteRule = deleteRule;
 
 
 
-/* =========================================================
-   DELETE FIRM
-========================================================= */
-
-async function deleteFirm(encodedFirm){
-
-    const firm =
-        decodeURIComponent(encodedFirm);
-
-    console.log("DELETE FIRM CLICKED:", firm);
-
-    if(!currentSession){
-
-        alert("Please login first.");
-
-        return;
-
-    }
-
-    if(!confirm("Delete prop firm: " + firm + "?")){
-
-        return;
-
-    }
-
-    try{
-
-        /*
-           Check if accounts use this firm
-        */
-
-        const hasAccounts =
-            data.accounts.some(
-                account =>
-                String(account.firm).trim() ===
-                String(firm).trim()
-            );
-
-        if(hasAccounts){
-
-            alert(
-                "This prop firm cannot be deleted because accounts are using it. Delete those accounts first."
-            );
-
-            return;
-
-        }
-
-
-        /*
-           Delete all rules of this firm first
-        */
-
-        const {
-            error:rulesError
-        } =
-        await supabaseClient
-            .from("rules")
-            .delete()
-            .eq(
-                "firm",
-                firm
-            )
-            .eq(
-                "user_id",
-                currentSession.user.id
-            );
-
-
-        if(rulesError){
-
-            throw rulesError;
-
-        }
-
-
-        /*
-           Delete firm from Supabase
-        */
-
-        const {
-            error:firmError
-        } =
-        await supabaseClient
-            .from("firms")
-            .delete()
-            .eq(
-                "name",
-                firm
-            )
-            .eq(
-                "user_id",
-                currentSession.user.id
-            );
-
-
-        if(firmError){
-
-            throw firmError;
-
-        }
-
-
-        /*
-           Remove immediately from local dashboard
-        */
-
-        data.firms =
-            data.firms.filter(
-                item =>
-                String(item).trim() !==
-                String(firm).trim()
-            );
-
-
-        data.rules =
-            data.rules.filter(
-                rule =>
-                String(rule.firm).trim() !==
-                String(firm).trim()
-            );
-
-
-        /*
-           Refresh UI immediately
-        */
-
-        renderAll();
-
-        updateAccountRulePreview();
-
-
-        console.log(
-            "PROP FIRM DELETE SUCCESS:",
-            firm
-        );
-
-
-        showSyncMessage(
-            "Prop firm deleted successfully."
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "Prop firm delete error:",
-            error
-        );
-
-        alert(
-            "Prop firm delete failed: " +
-            error.message
-        );
-
-    }
-
-}
-
-
-/*
-   Make function available to HTML onclick
-*/
-
-window.deleteFirm = deleteFirm;
 
 
 /* =========================================================
@@ -3602,67 +3437,91 @@ function renderFirmsTable(){
    DELETE ACCOUNT
 ========================================================= */
 
-async function deleteAccount(id){
+async function deleteFirm(encodedFirm){
+
+    const firm = decodeURIComponent(encodedFirm);
 
     if(!currentSession){
-
         alert("Please login first.");
         return;
-
     }
 
-    if(!confirm("Delete this account?")){
-
+    if(!confirm("Delete prop firm: " + firm + "?")){
         return;
-
     }
 
     try{
 
-        const { error } =
-            await supabaseClient
-                .from("accounts")
-                .delete()
-                .eq("id", id)
-                .eq("user_id", currentSession.user.id);
+        // Account aa firm use kare che ke nahi
+        const hasAccounts = data.accounts.some(
+            account =>
+                String(account.firm).trim() === String(firm).trim()
+        );
 
-        if(error){
+        if(hasAccounts){
 
-            throw error;
-
-        }
-
-        // Remove immediately from dashboard
-        data.accounts =
-            data.accounts.filter(
-                account =>
-                    String(account.id) !== String(id)
+            alert(
+                "Aa prop firm sathe account linked che. Pehla account delete karo."
             );
 
-        renderAccounts();
+            return;
+        }
 
-        updateStats();
+        // Firm na rules delete
+        const { error: rulesError } =
+            await supabaseClient
+                .from("rules")
+                .delete()
+                .eq("firm", firm)
+                .eq("user_id", currentSession.user.id);
+
+        if(rulesError){
+            throw rulesError;
+        }
+
+        // Firm delete
+        const { error: firmError } =
+            await supabaseClient
+                .from("firms")
+                .delete()
+                .eq("name", firm)
+                .eq("user_id", currentSession.user.id);
+
+        if(firmError){
+            throw firmError;
+        }
+
+        // Local data mathi immediately remove
+        data.firms = data.firms.filter(
+            item =>
+                String(item).trim() !== String(firm).trim()
+        );
+
+        data.rules = data.rules.filter(
+            rule =>
+                String(rule.firm).trim() !== String(firm).trim()
+        );
+
+        // Page refresh vagar UI update
+        renderAll();
+        updateAccountRulePreview();
 
         showSyncMessage(
-            "Account deleted successfully."
+            "Prop firm deleted successfully."
         );
 
     }
     catch(error){
 
-        console.error(
-            "Delete account error:",
-            error
-        );
+        console.error("Prop firm delete error:", error);
 
         alert(
-            "Account delete failed: " +
-            error.message
+            "Prop firm delete failed: " + error.message
         );
-
     }
-
 }
+
+window.deleteFirm = deleteFirm;
 
 
 /* =========================================================
