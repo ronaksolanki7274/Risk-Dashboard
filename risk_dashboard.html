@@ -3432,118 +3432,70 @@ function renderFirmsTable(){
 
 
 /* =========================================================
-   DELETE FIRM
+   DELETE ACCOUNT
 ========================================================= */
 
-async function deleteFirm(
-    encodedFirm
-){
+async function deleteAccount(id){
 
-    const firm =
-        decodeURIComponent(
-            encodedFirm
-        );
+    if(!currentSession){
 
+        alert("Please login first.");
+        return;
 
-    const hasAccounts =
-        data.accounts.some(
-            account =>
-            account.firm === firm
-        );
+    }
 
-
-    if(hasAccounts){
-
-        alert(
-            "This firm has accounts. Delete those accounts first."
-        );
+    if(!confirm("Delete this account?")){
 
         return;
 
     }
 
+    try{
 
-    if(
-        !confirm(
-            `Delete ${firm}?`
-        )
-    ){
+        const { error } =
+            await supabaseClient
+                .from("accounts")
+                .delete()
+                .eq("id", id)
+                .eq("user_id", currentSession.user.id);
 
-        return;
+        if(error){
 
-    }
+            throw error;
 
+        }
 
-    const {
-        error
-    } =
-    await supabaseClient
-        .from("firms")
-        .delete()
-        .eq(
-            "user_id",
-            currentSession.user.id
-        )
-        .eq(
-            "name",
-            firm
+        // Remove immediately from dashboard
+        data.accounts =
+            data.accounts.filter(
+                account =>
+                    String(account.id) !== String(id)
+            );
+
+        renderAccounts();
+
+        updateStats();
+
+        showSyncMessage(
+            "Account deleted successfully."
         );
 
+    }
+    catch(error){
 
-    if(error){
+        console.error(
+            "Delete account error:",
+            error
+        );
 
         alert(
+            "Account delete failed: " +
             error.message
         );
 
-        return;
-
     }
-
-
-    /*
-       Also delete its rules.
-    */
-
-    const ruleDelete =
-        await supabaseClient
-            .from("rules")
-            .delete()
-            .eq(
-                "user_id",
-                currentSession.user.id
-            )
-            .eq(
-                "firm",
-                firm
-            );
-
-
-    if(ruleDelete.error){
-
-        console.error(
-            ruleDelete.error
-        );
-
-    }
-
-
-    data.firms =
-        data.firms.filter(
-            f => f !== firm
-        );
-
-
-    data.rules =
-        data.rules.filter(
-            r => r.firm !== firm
-        );
-
-
-    renderAll();
 
 }
-
 
 
 /* =========================================================
