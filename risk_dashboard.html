@@ -297,6 +297,47 @@ textarea:focus{
     font-weight:bold;
 }
 
+/* ANALYTICS */
+
+.analytics-card{
+    background:#10182b;
+    border:1px solid #293a5d;
+}
+
+.analytics-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:12px;
+}
+
+.analytics-stat{
+    background:#0b1427;
+    border:1px solid #273553;
+    border-radius:11px;
+    padding:15px;
+}
+
+.analytics-label{
+    color:#8996b4;
+    font-size:12px;
+    margin-bottom:8px;
+}
+
+.analytics-value{
+    font-size:25px;
+    font-weight:bold;
+}
+
+.analytics-rate{
+    color:#75e0aa;
+}
+
+.analytics-divider{
+    margin:18px 0;
+    border:0;
+    border-top:1px solid #273553;
+}
+
 /* TABLE */
 
 .table-wrapper{
@@ -341,7 +382,7 @@ td{
     font-size:12px;
 }
 
-badge.eval{
+.badge.eval{
     background:#3b3158;
     color:#d2baff;
 }
@@ -503,7 +544,6 @@ badge.eval{
             Futures Prop-Firm Risk Management
         </div>
 
-
         <div class="form-group">
 
             <label>Email</label>
@@ -515,7 +555,6 @@ badge.eval{
             >
 
         </div>
-
 
         <div class="form-group">
 
@@ -529,7 +568,6 @@ badge.eval{
 
         </div>
 
-
         <button
             id="authButton"
             class="primary-btn"
@@ -538,12 +576,10 @@ badge.eval{
             Login
         </button>
 
-
         <div
             id="authMessage"
             class="auth-message"
         ></div>
-
 
         <div class="auth-switch">
 
@@ -717,6 +753,186 @@ badge.eval{
                     class="stat-value"
                 >
                     $0
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= LIFECYCLE ANALYTICS ================= -->
+
+        <div class="card analytics-card">
+
+            <h2>📈 Account Lifecycle Analytics</h2>
+
+            <div class="notice">
+
+                <b>Important:</b>
+                Normal Delete does not affect these numbers.
+                Only <b>Pass</b>, <b>Blown</b> and
+                <b>Winning</b> actions are counted.
+
+            </div>
+
+
+            <div class="analytics-grid">
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Evaluations Passed
+                    </div>
+
+                    <div
+                        id="analyticsEvalPassed"
+                        class="analytics-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Evaluations Blown
+                    </div>
+
+                    <div
+                        id="analyticsEvalBlown"
+                        class="analytics-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Evaluation Outcomes
+                    </div>
+
+                    <div
+                        id="analyticsEvalOutcomes"
+                        class="analytics-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Evaluation Pass Rate
+                    </div>
+
+                    <div
+                        id="analyticsEvalPassRate"
+                        class="analytics-value analytics-rate"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="analytics-divider">
+
+
+            <div class="analytics-grid">
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Funded 1st Trade
+                    </div>
+
+                    <div
+                        id="analyticsFundedCreated"
+                        class="analytics-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Funded Blown
+                    </div>
+
+                    <div
+                        id="analyticsFundedBlown"
+                        class="analytics-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Winning Funded
+                    </div>
+
+                    <div
+                        id="analyticsWinning"
+                        class="analytics-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Funded → Winning Rate
+                    </div>
+
+                    <div
+                        id="analyticsFundedWinningRate"
+                        class="analytics-value analytics-rate"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="analytics-divider">
+
+
+            <div class="analytics-grid">
+
+                <div class="analytics-stat">
+
+                    <div class="analytics-label">
+                        Evaluation → Winning
+                    </div>
+
+                    <div
+                        id="analyticsEvalWinningRate"
+                        class="analytics-value analytics-rate"
+                    >
+                        0%
+                    </div>
+
                 </div>
 
             </div>
@@ -1088,7 +1304,10 @@ badge.eval{
 
                     <label>Instrument</label>
 
-                    <select id="calcInstrument">
+                    <select
+                        id="calcInstrument"
+                        onchange="calculateRisk()"
+                    >
 
                         <option value="NQ">
                             NQ
@@ -1288,8 +1507,8 @@ badge.eval{
 
                             <td>
                                 <span class="badge funded-first">
-    Funded - 1st trade
-</span>
+                                    Funded - 1st trade
+                                </span>
                             </td>
 
                             <td>2 NQ</td>
@@ -1305,9 +1524,9 @@ badge.eval{
                         <tr>
 
                             <td>
-                               <span class="badge winning-funded">
-    Winning Funded
-</span>
+                                <span class="badge winning-funded">
+                                    Winning Funded
+                                </span>
                             </td>
 
                             <td>2 NQ</td>
@@ -1356,7 +1575,6 @@ const supabaseClient =
     );
 
 
-
 /* =========================================================
    DEFAULT DATA
 ========================================================= */
@@ -1403,7 +1621,6 @@ const DEFAULT_DATA = {
 };
 
 
-
 /* =========================================================
    APP STATE
 ========================================================= */
@@ -1413,7 +1630,8 @@ let currentSession = null;
 let data = {
     firms:[],
     rules:[],
-    accounts:[]
+    accounts:[],
+    lifecycle:[]
 };
 
 let authMode = "login";
@@ -1423,7 +1641,6 @@ let editingRuleIndex = null;
 let appStartedForUser = null;
 
 let authInitializing = true;
-
 
 
 /* =========================================================
@@ -1440,7 +1657,6 @@ document.addEventListener(
 
     }
 );
-
 
 
 /* =========================================================
@@ -1532,7 +1748,8 @@ async function initializeAuth(){
                         data = {
                             firms:[],
                             rules:[],
-                            accounts:[]
+                            accounts:[],
+                            lifecycle:[]
                         };
 
                         showLogin();
@@ -1547,7 +1764,6 @@ async function initializeAuth(){
     );
 
 }
-
 
 
 async function startCloudApp(
@@ -1649,7 +1865,6 @@ async function startCloudApp(
 }
 
 
-
 function showLogin(){
 
     document.getElementById(
@@ -1664,7 +1879,6 @@ function showLogin(){
 }
 
 
-
 function showApp(){
 
     document.getElementById(
@@ -1677,7 +1891,6 @@ function showApp(){
     ).style.display = "block";
 
 }
-
 
 
 function showAuthError(message){
@@ -1695,7 +1908,6 @@ function showAuthError(message){
 }
 
 
-
 function showAuthSuccess(message){
 
     const box =
@@ -1709,7 +1921,6 @@ function showAuthSuccess(message){
         "auth-message success";
 
 }
-
 
 
 function toggleAuthMode(){
@@ -1750,7 +1961,6 @@ function toggleAuthMode(){
         "auth-message";
 
 }
-
 
 
 async function handleAuth(){
@@ -1883,7 +2093,6 @@ async function handleAuth(){
 }
 
 
-
 async function logout(){
 
     try{
@@ -1904,13 +2113,13 @@ async function logout(){
     data = {
         firms:[],
         rules:[],
-        accounts:[]
+        accounts:[],
+        lifecycle:[]
     };
 
     showLogin();
 
 }
-
 
 
 /* =========================================================
@@ -1933,7 +2142,8 @@ async function loadCloudData(){
     const [
         firmsResponse,
         rulesResponse,
-        accountsResponse
+        accountsResponse,
+        lifecycleResponse
     ] =
     await Promise.all([
 
@@ -1953,6 +2163,12 @@ async function loadCloudData(){
             .from("accounts")
             .select("*")
             .eq("user_id",userId)
+            .order("created_at",{ascending:true}),
+
+        supabaseClient
+            .from("account_lifecycle")
+            .select("*")
+            .eq("user_id",userId)
             .order("created_at",{ascending:true})
 
     ]);
@@ -1968,6 +2184,10 @@ async function loadCloudData(){
 
     if(accountsResponse.error){
         throw accountsResponse.error;
+    }
+
+    if(lifecycleResponse.error){
+        throw lifecycleResponse.error;
     }
 
 
@@ -2040,8 +2260,41 @@ async function loadCloudData(){
             })
         );
 
-}
 
+    data.lifecycle =
+        lifecycleResponse.data.map(
+            row => ({
+
+                id:row.id,
+
+                accountId:
+                    row.account_id,
+
+                firm:
+                    row.firm,
+
+                size:
+                    Number(row.account_size),
+
+                accountNumber:
+                    row.account_number || "",
+
+                fromStage:
+                    row.from_stage,
+
+                toStage:
+                    row.to_stage,
+
+                eventType:
+                    row.event_type,
+
+                createdAt:
+                    row.created_at
+
+            })
+        );
+
+}
 
 
 async function migrateDefaultData(){
@@ -2103,7 +2356,6 @@ async function migrateDefaultData(){
 }
 
 
-
 /* =========================================================
    TABS
 ========================================================= */
@@ -2136,7 +2388,6 @@ function openTab(tabId,button){
 }
 
 
-
 /* =========================================================
    RENDER ALL
 ========================================================= */
@@ -2155,10 +2406,11 @@ function renderAll(){
 
     updateStats();
 
+    renderLifecycleAnalytics();
+
     calculateRisk();
 
 }
-
 
 
 /* =========================================================
@@ -2250,7 +2502,6 @@ function renderFirmSelects(){
 }
 
 
-
 function updateAccountSizeOptions(){
 
     renderAccountSizeOptions();
@@ -2258,7 +2509,6 @@ function updateAccountSizeOptions(){
     updateAccountRulePreview();
 
 }
-
 
 
 function renderAccountSizeOptions(){
@@ -2371,7 +2621,6 @@ function renderAccountSizeOptions(){
 }
 
 
-
 /* =========================================================
    RULE FINDER
 ========================================================= */
@@ -2401,7 +2650,6 @@ function getRule(
     );
 
 }
-
 
 
 /* =========================================================
@@ -2544,7 +2792,6 @@ function updateAccountRulePreview(){
     `;
 
 }
-
 
 
 /* =========================================================
@@ -2722,7 +2969,6 @@ async function addAccount(){
 }
 
 
-
 /* =========================================================
    RENDER ACCOUNTS
 ========================================================= */
@@ -2770,7 +3016,7 @@ function renderAccounts(){
                     <th>Risk</th>
                     <th>Reward</th>
                     <th>R:R</th>
-                    <th>Delete</th>
+                    <th>Actions</th>
 
                 </tr>
 
@@ -2829,23 +3075,86 @@ function renderAccounts(){
             }
 
 
-           let stageClass = "";
+            let stageClass = "";
 
-if(account.stage === "Evaluation"){
+            if(account.stage === "Evaluation"){
 
-    stageClass = "eval";
+                stageClass = "eval";
 
-}
-else if(account.stage === "Funded - 1st trade"){
+            }
+            else if(account.stage === "Funded - 1st trade"){
 
-    stageClass = "funded-first";
+                stageClass = "funded-first";
 
-}
-else if(account.stage === "Winning Funded"){
+            }
+            else if(account.stage === "Winning Funded"){
 
-    stageClass = "winning-funded";
+                stageClass = "winning-funded";
 
-}
+            }
+
+
+            let actionHtml = "";
+
+
+            if(account.stage === "Evaluation"){
+
+                actionHtml = `
+
+                    <button
+                        class="danger-btn"
+                        onclick="markAccountBlown('${account.id}')"
+                    >
+                        💥 Blown
+                    </button>
+
+                    <button
+                        class="success-btn"
+                        onclick="passEvaluation('${account.id}')"
+                        style="margin-left:5px"
+                    >
+                        ✅ Pass
+                    </button>
+
+                `;
+
+            }
+            else if(
+                account.stage === "Funded - 1st trade"
+            ){
+
+                actionHtml = `
+
+                    <button
+                        class="danger-btn"
+                        onclick="markAccountBlown('${account.id}')"
+                    >
+                        💥 Blown
+                    </button>
+
+                    <button
+                        class="success-btn"
+                        onclick="makeWinningFunded('${account.id}')"
+                        style="margin-left:5px"
+                    >
+                        🏆 Winning
+                    </button>
+
+                `;
+
+            }
+            else{
+
+                actionHtml = `
+
+                    <span class="badge winning-funded">
+                        🏆 Winning Funded
+                    </span>
+
+                `;
+
+            }
+
 
             html += `
 
@@ -2935,9 +3244,12 @@ else if(account.stage === "Winning Funded"){
 
                     <td>
 
+                        ${actionHtml}
+
                         <button
                             class="danger-btn"
                             onclick="deleteAccount('${account.id}')"
+                            style="margin-left:5px"
                         >
                             Delete
                         </button>
@@ -2964,7 +3276,6 @@ else if(account.stage === "Winning Funded"){
     container.innerHTML = html;
 
 }
-
 
 
 /* =========================================================
@@ -3025,7 +3336,6 @@ async function updateBalance(
 }
 
 
-
 /* =========================================================
    UPDATE DRAWDOWN
 ========================================================= */
@@ -3084,6 +3394,791 @@ async function updateDrawdown(
 }
 
 
+/* =========================================================
+   LIFECYCLE HISTORY
+========================================================= */
+
+async function saveLifecycleEvent(
+    account,
+    fromStage,
+    toStage,
+    eventType
+){
+
+    if(!currentSession){
+
+        throw new Error(
+            "Please login first."
+        );
+
+    }
+
+
+    const {
+        data:inserted,
+        error
+    } =
+    await supabaseClient
+        .from("account_lifecycle")
+        .insert({
+
+            user_id:
+                currentSession.user.id,
+
+            account_id:
+                account.id,
+
+            firm:
+                account.firm,
+
+            account_size:
+                account.size,
+
+            account_number:
+                account.accountNumber || null,
+
+            from_stage:
+                fromStage,
+
+            to_stage:
+                toStage || null,
+
+            event_type:
+                eventType
+
+        })
+        .select()
+        .single();
+
+
+    if(error){
+
+        throw error;
+
+    }
+
+
+    const event = {
+
+        id:inserted.id,
+
+        accountId:
+            inserted.account_id,
+
+        firm:
+            inserted.firm,
+
+        size:
+            Number(inserted.account_size),
+
+        accountNumber:
+            inserted.account_number || "",
+
+        fromStage:
+            inserted.from_stage,
+
+        toStage:
+            inserted.to_stage,
+
+        eventType:
+            inserted.event_type,
+
+        createdAt:
+            inserted.created_at
+
+    };
+
+
+    data.lifecycle.push(event);
+
+
+    return event;
+
+}
+
+
+/* =========================================================
+   DELETE LIFECYCLE EVENT
+   Used only for rollback when next DB action fails.
+========================================================= */
+
+async function deleteLifecycleEvent(
+    eventId
+){
+
+    if(!eventId){
+        return;
+    }
+
+
+    const {
+        error
+    } =
+    await supabaseClient
+        .from("account_lifecycle")
+        .delete()
+        .eq(
+            "id",
+            eventId
+        )
+        .eq(
+            "user_id",
+            currentSession.user.id
+        );
+
+
+    if(error){
+
+        console.error(
+            "Lifecycle rollback failed:",
+            error
+        );
+
+        return;
+
+    }
+
+
+    data.lifecycle =
+        data.lifecycle.filter(
+            event =>
+            String(event.id) !== String(eventId)
+        );
+
+}
+
+
+/* =========================================================
+   EVALUATION → BLOWN
+========================================================= */
+
+async function markAccountBlown(id){
+
+    const account =
+        data.accounts.find(
+            a =>
+            String(a.id) === String(id)
+        );
+
+
+    if(!account){
+
+        return;
+
+    }
+
+
+    if(
+        account.stage !== "Evaluation" &&
+        account.stage !== "Funded - 1st trade"
+    ){
+
+        return;
+
+    }
+
+
+    const stage =
+        account.stage;
+
+
+    if(!confirm(
+        "Mark this account as BLOWN?\n\n" +
+        "Aa action permanent history ma count thase."
+    )){
+
+        return;
+
+    }
+
+
+    let lifecycleEvent = null;
+
+
+    try{
+
+        /*
+           1. History save
+        */
+
+        lifecycleEvent =
+            await saveLifecycleEvent(
+                account,
+                stage,
+                null,
+                "Blown"
+            );
+
+
+        /*
+           2. Account roster mathi delete
+        */
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .from("accounts")
+            .delete()
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        /*
+           3. Local roster update
+        */
+
+        data.accounts =
+            data.accounts.filter(
+                a =>
+                String(a.id) !== String(id)
+            );
+
+
+        renderAccounts();
+
+        updateStats();
+
+        renderLifecycleAnalytics();
+
+
+        showSyncMessage(
+            stage +
+            " → Blown saved successfully."
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Mark blown error:",
+            error
+        );
+
+
+        /*
+           If account delete failed,
+           remove the history event again.
+        */
+
+        if(lifecycleEvent){
+
+            await deleteLifecycleEvent(
+                lifecycleEvent.id
+            );
+
+        }
+
+
+        alert(
+            "Unable to mark account as blown: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EVALUATION → FUNDED
+========================================================= */
+
+async function passEvaluation(id){
+
+    const account =
+        data.accounts.find(
+            a =>
+            String(a.id) === String(id)
+        );
+
+
+    if(!account){
+
+        return;
+
+    }
+
+
+    if(
+        account.stage !== "Evaluation"
+    ){
+
+        return;
+
+    }
+
+
+    if(!confirm(
+        "Mark this Evaluation as PASSED?\n\n" +
+        "Aa account Funded - 1st trade ma convert thase."
+    )){
+
+        return;
+
+    }
+
+
+    let lifecycleEvent = null;
+
+
+    try{
+
+        /*
+           1. Save permanent history
+        */
+
+        lifecycleEvent =
+            await saveLifecycleEvent(
+                account,
+                "Evaluation",
+                "Funded - 1st trade",
+                "Passed"
+            );
+
+
+        /*
+           2. Update account stage
+        */
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .from("accounts")
+            .update({
+
+                stage:
+                    "Funded - 1st trade"
+
+            })
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        /*
+           3. Update local account
+        */
+
+        account.stage =
+            "Funded - 1st trade";
+
+
+        renderAccounts();
+
+        updateStats();
+
+        renderLifecycleAnalytics();
+
+
+        showSyncMessage(
+            "Evaluation passed → Funded - 1st trade."
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Pass evaluation error:",
+            error
+        );
+
+
+        /*
+           Rollback history if account update failed.
+        */
+
+        if(lifecycleEvent){
+
+            await deleteLifecycleEvent(
+                lifecycleEvent.id
+            );
+
+        }
+
+
+        alert(
+            "Unable to pass evaluation: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FUNDED → WINNING FUNDED
+========================================================= */
+
+async function makeWinningFunded(id){
+
+    const account =
+        data.accounts.find(
+            a =>
+            String(a.id) === String(id)
+        );
+
+
+    if(!account){
+
+        return;
+
+    }
+
+
+    if(
+        account.stage !== "Funded - 1st trade"
+    ){
+
+        return;
+
+    }
+
+
+    if(!confirm(
+        "Mark this account as WINNING FUNDED?\n\n" +
+        "Aa conversion history ma save thase."
+    )){
+
+        return;
+
+    }
+
+
+    let lifecycleEvent = null;
+
+
+    try{
+
+        /*
+           1. Save permanent history
+        */
+
+        lifecycleEvent =
+            await saveLifecycleEvent(
+                account,
+                "Funded - 1st trade",
+                "Winning Funded",
+                "Winning"
+            );
+
+
+        /*
+           2. Update account
+        */
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .from("accounts")
+            .update({
+
+                stage:
+                    "Winning Funded"
+
+            })
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        /*
+           3. Update local account
+        */
+
+        account.stage =
+            "Winning Funded";
+
+
+        renderAccounts();
+
+        updateStats();
+
+        renderLifecycleAnalytics();
+
+
+        showSyncMessage(
+            "Funded account → Winning Funded."
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Winning funded error:",
+            error
+        );
+
+
+        /*
+           Rollback history if account update failed.
+        */
+
+        if(lifecycleEvent){
+
+            await deleteLifecycleEvent(
+                lifecycleEvent.id
+            );
+
+        }
+
+
+        alert(
+            "Unable to make Winning Funded: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+window.markAccountBlown =
+    markAccountBlown;
+
+window.passEvaluation =
+    passEvaluation;
+
+window.makeWinningFunded =
+    makeWinningFunded;
+
+
+/* =========================================================
+   LIFECYCLE ANALYTICS
+========================================================= */
+
+function renderLifecycleAnalytics(){
+
+    const lifecycle =
+        data.lifecycle || [];
+
+
+    /*
+       Evaluation results
+    */
+
+    const evalPassed =
+        lifecycle.filter(
+            event =>
+
+            event.eventType === "Passed" &&
+
+            event.fromStage === "Evaluation"
+
+        ).length;
+
+
+    const evalBlown =
+        lifecycle.filter(
+            event =>
+
+            event.eventType === "Blown" &&
+
+            event.fromStage === "Evaluation"
+
+        ).length;
+
+
+    const evalOutcomes =
+        evalPassed +
+        evalBlown;
+
+
+    const evalPassRate =
+        evalOutcomes > 0
+        ? (
+            evalPassed /
+            evalOutcomes
+        ) * 100
+        : 0;
+
+
+    /*
+       Funded results
+    */
+
+    const fundedCreated =
+        lifecycle.filter(
+            event =>
+
+            event.eventType === "Passed" &&
+
+            event.fromStage === "Evaluation" &&
+
+            event.toStage === "Funded - 1st trade"
+
+        ).length;
+
+
+    const fundedBlown =
+        lifecycle.filter(
+            event =>
+
+            event.eventType === "Blown" &&
+
+            event.fromStage === "Funded - 1st trade"
+
+        ).length;
+
+
+    const winning =
+        lifecycle.filter(
+            event =>
+
+            event.eventType === "Winning" &&
+
+            event.fromStage === "Funded - 1st trade" &&
+
+            event.toStage === "Winning Funded"
+
+        ).length;
+
+
+    /*
+       Funded → Winning rate
+
+       Example:
+
+       4 Funded
+       3 Winning
+       1 Blown
+
+       Rate = 3 / (3 + 1)
+            = 75%
+    */
+
+    const fundedOutcomes =
+        winning +
+        fundedBlown;
+
+
+    const fundedWinningRate =
+        fundedOutcomes > 0
+        ? (
+            winning /
+            fundedOutcomes
+        ) * 100
+        : 0;
+
+
+    /*
+       Evaluation → Winning
+
+       Example:
+
+       10 Evaluation outcomes
+       4 eventually Winning
+
+       Rate = 4 / 10
+    */
+
+    const evalWinningRate =
+        evalOutcomes > 0
+        ? (
+            winning /
+            evalOutcomes
+        ) * 100
+        : 0;
+
+
+    document.getElementById(
+        "analyticsEvalPassed"
+    ).textContent =
+        evalPassed;
+
+
+    document.getElementById(
+        "analyticsEvalBlown"
+    ).textContent =
+        evalBlown;
+
+
+    document.getElementById(
+        "analyticsEvalOutcomes"
+    ).textContent =
+        evalOutcomes;
+
+
+    document.getElementById(
+        "analyticsEvalPassRate"
+    ).textContent =
+        evalPassRate.toFixed(1) +
+        "%";
+
+
+    document.getElementById(
+        "analyticsFundedCreated"
+    ).textContent =
+        fundedCreated;
+
+
+    document.getElementById(
+        "analyticsFundedBlown"
+    ).textContent =
+        fundedBlown;
+
+
+    document.getElementById(
+        "analyticsWinning"
+    ).textContent =
+        winning;
+
+
+    document.getElementById(
+        "analyticsFundedWinningRate"
+    ).textContent =
+        fundedWinningRate.toFixed(1) +
+        "%";
+
+
+    document.getElementById(
+        "analyticsEvalWinningRate"
+    ).textContent =
+        evalWinningRate.toFixed(1) +
+        "%";
+
+}
+
 
 /* =========================================================
    DELETE RULE
@@ -3113,10 +4208,6 @@ async function deleteRule(index){
 
     try{
 
-        /*
-           Delete from Supabase first
-        */
-
         const { error } =
             await supabaseClient
                 .from("rules")
@@ -3138,20 +4229,12 @@ async function deleteRule(index){
         }
 
 
-        /*
-           Remove from local dashboard immediately
-        */
-
         data.rules =
             data.rules.filter(
                 item =>
                     String(item.id) !== String(rule.id)
             );
 
-
-        /*
-           Fix editing index
-        */
 
         if(
             editingRuleIndex === index
@@ -3169,10 +4252,6 @@ async function deleteRule(index){
 
         }
 
-
-        /*
-           Refresh Rules table immediately
-        */
 
         renderRulesTable();
 
@@ -3205,11 +4284,8 @@ async function deleteRule(index){
 
 }
 
-    /* MAKE DELETE RULE AVAILABLE TO HTML BUTTON */
+
 window.deleteRule = deleteRule;
-
-
-
 
 
 /* =========================================================
@@ -3273,7 +4349,6 @@ function updateStats(){
         totalSize.toLocaleString();
 
 }
-
 
 
 /* =========================================================
@@ -3355,7 +4430,6 @@ async function addFirm(){
     renderAll();
 
 }
-
 
 
 /* =========================================================
@@ -3449,31 +4523,47 @@ function renderFirmsTable(){
 }
 
 
-
 /* =========================================================
-   DELETE ACCOUNT
+   DELETE FIRM
 ========================================================= */
 
 async function deleteFirm(encodedFirm){
 
-    const firm = decodeURIComponent(encodedFirm);
+    const firm =
+        decodeURIComponent(encodedFirm);
+
 
     if(!currentSession){
-        alert("Please login first.");
+
+        alert(
+            "Please login first."
+        );
+
         return;
+
     }
 
-    if(!confirm("Delete prop firm: " + firm + "?")){
+
+    if(!confirm(
+        "Delete prop firm: " +
+        firm +
+        "?"
+    )){
+
         return;
+
     }
+
 
     try{
 
-        // Account aa firm use kare che ke nahi
-        const hasAccounts = data.accounts.some(
-            account =>
-                String(account.firm).trim() === String(firm).trim()
-        );
+        const hasAccounts =
+            data.accounts.some(
+                account =>
+                    String(account.firm).trim() ===
+                    String(firm).trim()
+            );
+
 
         if(hasAccounts){
 
@@ -3482,46 +4572,76 @@ async function deleteFirm(encodedFirm){
             );
 
             return;
+
         }
 
-        // Firm na rules delete
-        const { error: rulesError } =
-            await supabaseClient
-                .from("rules")
-                .delete()
-                .eq("firm", firm)
-                .eq("user_id", currentSession.user.id);
+
+        const {
+            error:rulesError
+        } =
+        await supabaseClient
+            .from("rules")
+            .delete()
+            .eq(
+                "firm",
+                firm
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
 
         if(rulesError){
+
             throw rulesError;
+
         }
 
-        // Firm delete
-        const { error: firmError } =
-            await supabaseClient
-                .from("firms")
-                .delete()
-                .eq("name", firm)
-                .eq("user_id", currentSession.user.id);
+
+        const {
+            error:firmError
+        } =
+        await supabaseClient
+            .from("firms")
+            .delete()
+            .eq(
+                "name",
+                firm
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
 
         if(firmError){
+
             throw firmError;
+
         }
 
-        // Local data mathi immediately remove
-        data.firms = data.firms.filter(
-            item =>
-                String(item).trim() !== String(firm).trim()
-        );
 
-        data.rules = data.rules.filter(
-            rule =>
-                String(rule.firm).trim() !== String(firm).trim()
-        );
+        data.firms =
+            data.firms.filter(
+                item =>
+                    String(item).trim() !==
+                    String(firm).trim()
+            );
 
-        // Page refresh vagar UI update
+
+        data.rules =
+            data.rules.filter(
+                rule =>
+                    String(rule.firm).trim() !==
+                    String(firm).trim()
+            );
+
+
         renderAll();
+
         updateAccountRulePreview();
+
 
         showSyncMessage(
             "Prop firm deleted successfully."
@@ -3530,15 +4650,23 @@ async function deleteFirm(encodedFirm){
     }
     catch(error){
 
-        console.error("Prop firm delete error:", error);
+        console.error(
+            "Prop firm delete error:",
+            error
+        );
 
         alert(
-            "Prop firm delete failed: " + error.message
+            "Prop firm delete failed: " +
+            error.message
         );
+
     }
+
 }
 
-window.deleteFirm = deleteFirm;
+
+window.deleteFirm =
+    deleteFirm;
 
 
 /* =========================================================
@@ -3724,7 +4852,6 @@ async function saveRule(){
     }
 
 
-
     /*
        ADD NEW RULE
     */
@@ -3818,7 +4945,6 @@ async function saveRule(){
 }
 
 
-
 /* =========================================================
    EDIT RULE
 ========================================================= */
@@ -3830,7 +4956,9 @@ function editRule(index){
 
 
     if(!rule){
+
         return;
+
     }
 
 
@@ -3907,7 +5035,6 @@ function editRule(index){
 }
 
 
-
 /* =========================================================
    CANCEL EDIT
 ========================================================= */
@@ -3961,32 +5088,44 @@ function cancelRuleEdit(){
 }
 
 
-
 /* =========================================================
-   DELETE ACCOUNT
+   NORMAL DELETE ACCOUNT
+   IMPORTANT:
+   This does NOT create lifecycle history.
 ========================================================= */
 
 async function deleteAccount(id){
 
-    console.log("DELETE ACCOUNT CLICKED:", id);
+    console.log(
+        "DELETE ACCOUNT CLICKED:",
+        id
+    );
+
 
     if(!currentSession){
 
-        alert("Please login first.");
+        alert(
+            "Please login first."
+        );
 
         return;
 
     }
 
-    if(!confirm("Delete this account?")){
+
+    if(!confirm(
+        "Delete this account?\n\n" +
+        "Aa normal delete che, lifecycle history par koi effect nahi thase."
+    )){
 
         return;
 
     }
 
-    console.log("Before delete:", data.accounts);
 
-    const oldAccounts = [...data.accounts];
+    const oldAccounts =
+        [...data.accounts];
+
 
     /*
        Remove from UI immediately
@@ -3995,10 +5134,10 @@ async function deleteAccount(id){
     data.accounts =
         data.accounts.filter(
             account =>
-            String(account.id) !== String(id)
+            String(account.id) !==
+            String(id)
         );
 
-    console.log("After local delete:", data.accounts);
 
     renderAccounts();
 
@@ -4029,10 +5168,6 @@ async function deleteAccount(id){
 
         }
 
-        console.log(
-            "SUPABASE DELETE SUCCESS:",
-            id
-        );
 
         showSyncMessage(
             "Account deleted successfully."
@@ -4046,17 +5181,15 @@ async function deleteAccount(id){
             error
         );
 
-        /*
-           Database delete failed,
-           so restore UI
-        */
 
         data.accounts =
             oldAccounts;
 
+
         renderAccounts();
 
         updateStats();
+
 
         alert(
             "Account delete failed: " +
@@ -4159,15 +5292,19 @@ function renderRulesTable(){
                     </td>
 
                     <td>
-                       <span class="badge ${
-    rule.stage === "Evaluation"
-    ? "eval"
-    : rule.stage === "Funded - 1st trade"
-    ? "funded-first"
-    : "winning-funded"
-}">
+
+                        <span class="badge ${
+                            rule.stage === "Evaluation"
+                            ? "eval"
+                            : rule.stage === "Funded - 1st trade"
+                            ? "funded-first"
+                            : "winning-funded"
+                        }">
+
                             ${escapeHtml(rule.stage)}
+
                         </span>
+
                     </td>
 
                     <td>
@@ -4233,7 +5370,6 @@ function renderRulesTable(){
         html;
 
 }
-
 
 
 /* =========================================================
@@ -4355,7 +5491,6 @@ function calculateRisk(){
 }
 
 
-
 /* =========================================================
    CLOUD STATUS
 ========================================================= */
@@ -4399,7 +5534,6 @@ function setCloudStatus(
 }
 
 
-
 /* =========================================================
    SYNC MESSAGE
 ========================================================= */
@@ -4408,12 +5542,12 @@ function showSyncMessage(
     message
 ){
 
-    console.error(
+    console.log(
+        "SYNC:",
         message
     );
 
 }
-
 
 
 /* =========================================================
