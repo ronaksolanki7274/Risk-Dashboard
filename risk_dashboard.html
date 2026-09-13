@@ -3968,87 +3968,109 @@ function cancelRuleEdit(){
 
 
 /* =========================================================
-   DELETE RULE
+   DELETE ACCOUNT
 ========================================================= */
 
-async function deleteRule(index){
+async function deleteAccount(id){
 
-    const rule =
-        data.rules[index];
+    console.log("DELETE ACCOUNT CLICKED:", id);
 
+    if(!currentSession){
 
-    if(!rule){
-        return;
-    }
-
-
-    if(
-        !confirm(
-            `Delete rule: ${rule.firm} / $${rule.size.toLocaleString()} / ${rule.stage}?`
-        )
-    ){
+        alert("Please login first.");
 
         return;
 
     }
 
+    if(!confirm("Delete this account?")){
 
-    const {
-        error
-    } =
-    await supabaseClient
-        .from("rules")
-        .delete()
-        .eq(
-            "id",
-            rule.id
-        )
-        .eq(
-            "user_id",
-            currentSession.user.id
+        return;
+
+    }
+
+    console.log("Before delete:", data.accounts);
+
+    const oldAccounts = [...data.accounts];
+
+    /*
+       Remove from UI immediately
+    */
+
+    data.accounts =
+        data.accounts.filter(
+            account =>
+            String(account.id) !== String(id)
         );
 
+    console.log("After local delete:", data.accounts);
 
-    if(error){
+    renderAccounts();
+
+    updateStats();
+
+
+    try{
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .from("accounts")
+            .delete()
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+        console.log(
+            "SUPABASE DELETE SUCCESS:",
+            id
+        );
+
+        showSyncMessage(
+            "Account deleted successfully."
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "SUPABASE DELETE ERROR:",
+            error
+        );
+
+        /*
+           Database delete failed,
+           so restore UI
+        */
+
+        data.accounts =
+            oldAccounts;
+
+        renderAccounts();
+
+        updateStats();
 
         alert(
+            "Account delete failed: " +
             error.message
         );
 
-        return;
-
     }
-
-
-    data.rules.splice(
-        index,
-        1
-    );
-
-
-    if(
-        editingRuleIndex === index
-    ){
-
-        cancelRuleEdit();
-
-    }
-    else if(
-        editingRuleIndex !== null &&
-        index < editingRuleIndex
-    ){
-
-        editingRuleIndex--;
-
-    }
-
-
-    renderAll();
-
-    updateAccountRulePreview();
 
 }
-
 
 
 /* =========================================================
