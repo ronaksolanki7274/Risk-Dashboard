@@ -2134,16 +2134,20 @@ async function loadCloudData(){
         );
     }
 
-
     const userId =
         currentSession.user.id;
 
 
+    /*
+       STEP 1
+       Load main dashboard data first.
+       Lifecycle intentionally separate chhe.
+    */
+
     const [
         firmsResponse,
         rulesResponse,
-        accountsResponse,
-        lifecycleResponse
+        accountsResponse
     ] =
     await Promise.all([
 
@@ -2163,16 +2167,14 @@ async function loadCloudData(){
             .from("accounts")
             .select("*")
             .eq("user_id",userId)
-            .order("created_at",{ascending:true}),
-
-        supabaseClient
-            .from("account_lifecycle")
-            .select("*")
-            .eq("user_id",userId)
             .order("created_at",{ascending:true})
 
     ]);
 
+
+    /*
+       Main tables ma error hoy to actual Cloud Error batavvo.
+    */
 
     if(firmsResponse.error){
         throw firmsResponse.error;
@@ -2184,10 +2186,6 @@ async function loadCloudData(){
 
     if(accountsResponse.error){
         throw accountsResponse.error;
-    }
-
-    if(lifecycleResponse.error){
-        throw lifecycleResponse.error;
     }
 
 
@@ -2208,11 +2206,19 @@ async function loadCloudData(){
     }
 
 
+    /*
+       FIRMS
+    */
+
     data.firms =
         firmsResponse.data.map(
             row => row.name
         );
 
+
+    /*
+       RULES
+    */
 
     data.rules =
         rulesResponse.data.map(
@@ -2235,6 +2241,10 @@ async function loadCloudData(){
             })
         );
 
+
+    /*
+       ACCOUNTS
+    */
 
     data.accounts =
         accountsResponse.data.map(
@@ -2261,38 +2271,82 @@ async function loadCloudData(){
         );
 
 
-    data.lifecycle =
-        lifecycleResponse.data.map(
-            row => ({
+    /*
+       STEP 2
+       Lifecycle history separately load karishu.
 
-                id:row.id,
+       Important:
+       Aa query fail thay to main dashboard
+       Cloud Error ma nahi jase.
+    */
 
-                accountId:
-                    row.account_id,
-
-                firm:
-                    row.firm,
-
-                size:
-                    Number(row.account_size),
-
-                accountNumber:
-                    row.account_number || "",
-
-                fromStage:
-                    row.from_stage,
-
-                toStage:
-                    row.to_stage,
-
-                eventType:
-                    row.event_type,
-
-                createdAt:
-                    row.created_at
-
-            })
+    const {
+        data:lifecycleRows,
+        error:lifecycleError
+    } =
+    await supabaseClient
+        .from("account_lifecycle")
+        .select("*")
+        .eq("user_id",userId)
+        .order(
+            "created_at",
+            {
+                ascending:true
+            }
         );
+
+
+    if(lifecycleError){
+
+        console.error(
+            "Lifecycle history load error:",
+            lifecycleError
+        );
+
+        /*
+           Dashboard continue rakho.
+           Analytics blank/zero thi start thase.
+        */
+
+        data.lifecycle = [];
+
+    }
+    else{
+
+        data.lifecycle =
+            (lifecycleRows || []).map(
+                row => ({
+
+                    id:row.id,
+
+                    accountId:
+                        row.account_id,
+
+                    firm:
+                        row.firm,
+
+                    size:
+                        Number(row.account_size),
+
+                    accountNumber:
+                        row.account_number || "",
+
+                    fromStage:
+                        row.from_stage,
+
+                    toStage:
+                        row.to_stage || null,
+
+                    eventType:
+                        row.event_type,
+
+                    createdAt:
+                        row.created_at
+
+                })
+            );
+
+    }
 
 }
 
