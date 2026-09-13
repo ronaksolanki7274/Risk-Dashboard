@@ -3079,52 +3079,72 @@ async function deleteAccount(id){
             "Delete this account?"
         )
     ){
-
         return;
-
     }
 
+    try{
 
-    const {
-        error
-    } =
-    await supabaseClient
-        .from("accounts")
-        .delete()
-        .eq(
-            "id",
-            id
-        )
-        .eq(
-            "user_id",
-            currentSession.user.id
+        const {
+            data:deletedRows,
+            error
+        } =
+        await supabaseClient
+            .from("accounts")
+            .delete()
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            )
+            .select("id");
+
+        if(error){
+            throw error;
+        }
+
+        if(
+            !deletedRows ||
+            deletedRows.length === 0
+        ){
+
+            alert(
+                "Account delete thayu nathi. Supabase DELETE policy check karo."
+            );
+
+            return;
+        }
+
+        data.accounts =
+            data.accounts.filter(
+                account =>
+                account.id !== id
+            );
+
+        renderAccounts();
+
+        updateStats();
+
+        showSyncMessage(
+            "Account deleted successfully."
         );
 
+    }
+    catch(error){
 
-    if(error){
+        console.error(
+            "Delete account error:",
+            error
+        );
 
         alert(
+            "Account delete failed: " +
             error.message
         );
-
-        return;
-
     }
-
-
-    data.accounts =
-        data.accounts.filter(
-            account =>
-            account.id !== id
-        );
-
-
-    renderAccounts();
-
-    updateStats();
-
 }
-
 
 
 /* =========================================================
