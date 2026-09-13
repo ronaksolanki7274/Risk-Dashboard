@@ -341,14 +341,19 @@ td{
     font-size:12px;
 }
 
-.badge.eval{
+badge.eval{
     background:#3b3158;
     color:#d2baff;
 }
 
-.badge.funded{
+.badge.funded-first{
     background:#174c3a;
     color:#83e2b2;
+}
+
+.badge.winning-funded{
+    background:#ffffff;
+    color:#111111;
 }
 
 /* RULE BOX */
@@ -2824,11 +2829,23 @@ function renderAccounts(){
             }
 
 
-            const stageClass =
-                account.stage === "Evaluation"
-                ? "eval"
-                : "funded";
+           let stageClass = "";
 
+if(account.stage === "Evaluation"){
+
+    stageClass = "eval";
+
+}
+else if(account.stage === "Funded - 1st trade"){
+
+    stageClass = "funded-first";
+
+}
+else if(account.stage === "Winning Funded"){
+
+    stageClass = "winning-funded";
+
+}
 
             html += `
 
@@ -4142,11 +4159,13 @@ function renderRulesTable(){
                     </td>
 
                     <td>
-                        <span class="badge ${
-                            rule.stage === "Evaluation"
-                            ? "eval"
-                            : "funded"
-                        }">
+                       <span class="badge ${
+    rule.stage === "Evaluation"
+    ? "eval"
+    : rule.stage === "Funded - 1st trade"
+    ? "funded-first"
+    : "winning-funded"
+}">
                             ${escapeHtml(rule.stage)}
                         </span>
                     </td>
