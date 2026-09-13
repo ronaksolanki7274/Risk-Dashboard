@@ -3069,23 +3069,23 @@ async function updateDrawdown(
 
 
 /* =========================================================
-   DELETE ACCOUNT
+   DELETE RULE
 ========================================================= */
 
-async function deleteAccount(id){
+async function deleteRule(index){
 
-    if(!currentSession){
+    const rule =
+        data.rules[index];
 
-        alert("Please login first.");
+    if(!rule){
 
         return;
 
     }
 
-
     if(
         !confirm(
-            "Delete this account?"
+            `Delete rule: ${rule.firm} / $${rule.size.toLocaleString()} / ${rule.stage}?`
         )
     ){
 
@@ -3094,58 +3094,24 @@ async function deleteAccount(id){
     }
 
 
-    /*
-       FIRST: Remove account from the screen immediately.
-       This makes the dashboard update without page refresh.
-    */
-
-    const oldAccounts = [...data.accounts];
-
-    const accountExists =
-        data.accounts.some(
-            account =>
-            account.id === id
-        );
-
-    if(!accountExists){
-
-        return;
-
-    }
-
-
-    data.accounts =
-        data.accounts.filter(
-            account =>
-            account.id !== id
-        );
-
-
-    renderAccounts();
-
-    updateStats();
-
-
     try{
 
         /*
-           SECOND: Delete the same account from Supabase.
+           Delete from Supabase first
         */
 
-        const {
-            error
-        } =
-        await supabaseClient
-            .from("accounts")
-            .delete()
-            .eq(
-                "id",
-                id
-            )
-            .eq(
-                "user_id",
-                currentSession.user.id
-            );
+        const { error } =
+            await supabaseClient
+                .from("rules")
+                .delete()
+                .eq(
+                    "id",
+                    rule.id
+                )
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
 
 
         if(error){
@@ -3155,8 +3121,53 @@ async function deleteAccount(id){
         }
 
 
+        /*
+           Remove from local dashboard immediately
+        */
+
+        data.rules =
+            data.rules.filter(
+                item =>
+                    String(item.id) !== String(rule.id)
+            );
+
+
+        /*
+           Fix editing index
+        */
+
+        if(
+            editingRuleIndex === index
+        ){
+
+            cancelRuleEdit();
+
+        }
+        else if(
+            editingRuleIndex !== null &&
+            index < editingRuleIndex
+        ){
+
+            editingRuleIndex--;
+
+        }
+
+
+        /*
+           Refresh Rules table immediately
+        */
+
+        renderRulesTable();
+
+        renderAccounts();
+
+        updateAccountRulePreview();
+
+        updateStats();
+
+
         showSyncMessage(
-            "Account deleted successfully."
+            "Rule deleted successfully."
         );
 
 
@@ -3164,27 +3175,12 @@ async function deleteAccount(id){
     catch(error){
 
         console.error(
-            "Delete account error:",
+            "Delete rule error:",
             error
         );
 
-
-        /*
-           If database delete fails,
-           restore the account on screen.
-        */
-
-        data.accounts =
-            oldAccounts;
-
-
-        renderAccounts();
-
-        updateStats();
-
-
         alert(
-            "Account delete failed: " +
+            "Rule delete failed: " +
             error.message
         );
 
