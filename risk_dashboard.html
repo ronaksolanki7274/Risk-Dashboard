@@ -1081,6 +1081,78 @@ td{
 
     </div>
 
+    <!-- ================= DATA MANAGEMENT ================= -->
+
+<div class="card">
+
+    <h2>🗑️ Data Management</h2>
+
+    <div class="notice warning">
+
+        Aa section thi tame database mathi specific data manually clear kari shako cho.
+
+        <br><br>
+
+        <b>Firms ane Trading Rules safe rehse.</b>
+
+        <br>
+
+        Normal account Delete lifecycle history ne touch nahi kare.
+
+    </div>
+
+
+    <div class="grid">
+
+        <div class="form-group">
+
+            <label>Select Account</label>
+
+            <select id="dataManagementAccount">
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>What do you want to clear?</label>
+
+            <select id="dataManagementAction">
+
+                <option value="account_history">
+                    Selected Account + Its History
+                </option>
+
+                <option value="accounts_only">
+                    All Accounts Only
+                </option>
+
+                <option value="history_only">
+                    All Lifecycle History
+                </option>
+
+                <option value="everything">
+                    Everything (Accounts + History)
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="danger-btn"
+        style="margin-top:15px;padding:11px 16px"
+        onclick="runDataManagementAction()"
+    >
+        🗑️ Clear Selected Data
+    </button>
+
+</div>
+
 
 
     <!-- ================= RULES ================= -->
@@ -2458,6 +2530,8 @@ function renderAll(){
 
     renderAccounts();
 
+    renderDataManagementAccounts();
+
     updateStats();
 
     renderLifecycleAnalytics();
@@ -3016,9 +3090,11 @@ async function addAccount(){
     ).value = "";
 
 
-    renderAccounts();
+   renderAccounts();
 
-    updateStats();
+renderDataManagementAccounts();
+
+updateStats();
 
 }
 
@@ -3035,20 +3111,21 @@ function renderAccounts(){
         );
 
 
-    if(data.accounts.length === 0){
+   if(data.accounts.length === 0){
 
-        container.innerHTML = `
+    container.innerHTML = `
 
-            <div class="empty">
-                No accounts added yet.
-            </div>
+        <div class="empty">
+            No accounts added yet.
+        </div>
 
-        `;
+    `;
 
-        return;
+    renderDataManagementAccounts();
 
-    }
+    return;
 
+}
 
     let html = `
 
@@ -3326,10 +3403,737 @@ function renderAccounts(){
 
     `;
 
-
     container.innerHTML = html;
+    renderDataManagementAccounts();
 
 }
+
+
+    /* =========================================================
+   DATA MANAGEMENT
+   Manual selective database cleanup
+========================================================= */
+
+function renderDataManagementAccounts(){
+
+    const select =
+        document.getElementById(
+            "dataManagementAccount"
+        );
+
+
+    if(!select){
+
+        return;
+
+    }
+
+
+    const oldValue =
+        select.value;
+
+
+    select.innerHTML = "";
+
+
+    if(data.accounts.length === 0){
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value = "";
+
+
+        option.textContent =
+            "No accounts available";
+
+
+        select.appendChild(
+            option
+        );
+
+
+        return;
+
+    }
+
+
+    data.accounts.forEach(
+        account => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                account.id;
+
+
+            option.textContent =
+                account.firm +
+                " / $" +
+                Number(
+                    account.size
+                ).toLocaleString() +
+                " / " +
+                account.stage +
+                (
+                    account.accountNumber
+                    ? " / #" +
+                      account.accountNumber
+                    : ""
+                );
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    /*
+       Jo previously selected account
+       haju available hoy to same account
+       selected rakho.
+    */
+
+    if(
+        data.accounts.some(
+            account =>
+                String(account.id) ===
+                String(oldValue)
+        )
+    ){
+
+        select.value =
+            oldValue;
+
+    }
+
+}
+
+
+/* =========================================================
+   DATA MANAGEMENT ACTION
+========================================================= */
+
+async function runDataManagementAction(){
+
+    if(!currentSession){
+
+        alert(
+            "Please login first."
+        );
+
+        return;
+
+    }
+
+
+    const action =
+        document.getElementById(
+            "dataManagementAction"
+        ).value;
+
+
+    const selectedAccountId =
+        document.getElementById(
+            "dataManagementAccount"
+        ).value;
+
+
+    /* =====================================================
+       1. SELECTED ACCOUNT + ITS HISTORY
+    ===================================================== */
+
+    if(
+        action ===
+        "account_history"
+    ){
+
+        if(!selectedAccountId){
+
+            alert(
+                "Please select an account first."
+            );
+
+            return;
+
+        }
+
+
+        const account =
+            data.accounts.find(
+                item =>
+                    String(item.id) ===
+                    String(selectedAccountId)
+            );
+
+
+        if(!account){
+
+            alert(
+                "Selected account not found."
+            );
+
+            return;
+
+        }
+
+
+        const historyCount =
+            data.lifecycle.filter(
+                event =>
+                    String(event.accountId) ===
+                    String(account.id)
+            ).length;
+
+
+        const confirmed =
+            confirm(
+
+                "DELETE SELECTED ACCOUNT + ITS HISTORY?\n\n" +
+
+                "Firm: " +
+                account.firm +
+                "\n" +
+
+                "Size: $" +
+                Number(
+                    account.size
+                ).toLocaleString() +
+                "\n" +
+
+                "Stage: " +
+                account.stage +
+                "\n\n" +
+
+                "Lifecycle history events: " +
+                historyCount +
+                "\n\n" +
+
+                "Aa action permanent che."
+
+            );
+
+
+        if(!confirmed){
+
+            return;
+
+        }
+
+
+        try{
+
+            /*
+               STEP 1:
+               Delete lifecycle history
+               only for selected account.
+            */
+
+            const {
+                error:historyError
+            } =
+            await supabaseClient
+                .from(
+                    "account_lifecycle"
+                )
+                .delete()
+                .eq(
+                    "account_id",
+                    account.id
+                )
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
+
+
+            if(historyError){
+
+                throw historyError;
+
+            }
+
+
+            /*
+               STEP 2:
+               Delete selected account.
+            */
+
+            const {
+                error:accountError
+            } =
+            await supabaseClient
+                .from(
+                    "accounts"
+                )
+                .delete()
+                .eq(
+                    "id",
+                    account.id
+                )
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
+
+
+            if(accountError){
+
+                throw accountError;
+
+            }
+
+
+            /*
+               STEP 3:
+               Local state update.
+            */
+
+            data.accounts =
+                data.accounts.filter(
+                    item =>
+                        String(item.id) !==
+                        String(account.id)
+                );
+
+
+            data.lifecycle =
+                data.lifecycle.filter(
+                    event =>
+                        String(event.accountId) !==
+                        String(account.id)
+                );
+
+
+            renderAll();
+
+
+            showSyncMessage(
+                "Selected account and its history deleted."
+            );
+
+
+            alert(
+                "Selected account + its history deleted successfully."
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "Selected account/history delete error:",
+                error
+            );
+
+
+            alert(
+                "Delete failed: " +
+                error.message
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       2. ALL ACCOUNTS ONLY
+       IMPORTANT:
+       Lifecycle history SAFE.
+    ===================================================== */
+
+    if(
+        action ===
+        "accounts_only"
+    ){
+
+        if(
+            data.accounts.length === 0
+        ){
+
+            alert(
+                "There are no accounts to delete."
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+
+                "DELETE ALL CURRENT ACCOUNTS?\n\n" +
+
+                "Total accounts: " +
+                data.accounts.length +
+                "\n\n" +
+
+                "IMPORTANT:\n" +
+
+                "Lifecycle history WILL NOT be deleted.\n" +
+
+                "Analytics history will remain safe.\n\n" +
+
+                "Continue?"
+
+            );
+
+
+        if(!confirmed){
+
+            return;
+
+        }
+
+
+        try{
+
+            const {
+                error
+            } =
+            await supabaseClient
+                .from(
+                    "accounts"
+                )
+                .delete()
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
+
+
+            if(error){
+
+                throw error;
+
+            }
+
+
+            data.accounts = [];
+
+
+            renderAll();
+
+
+            showSyncMessage(
+                "All accounts deleted. Lifecycle history preserved."
+            );
+
+
+            alert(
+                "All accounts deleted.\n\n" +
+                "Lifecycle history is safe."
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "Delete all accounts error:",
+                error
+            );
+
+
+            alert(
+                "Delete failed: " +
+                error.message
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       3. ALL LIFECYCLE HISTORY ONLY
+       IMPORTANT:
+       Accounts SAFE.
+    ===================================================== */
+
+    if(
+        action ===
+        "history_only"
+    ){
+
+        if(
+            data.lifecycle.length === 0
+        ){
+
+            alert(
+                "There is no lifecycle history to delete."
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+
+                "DELETE ALL LIFECYCLE HISTORY?\n\n" +
+
+                "History events: " +
+                data.lifecycle.length +
+                "\n\n" +
+
+                "Current accounts WILL NOT be deleted.\n\n" +
+
+                "Analytics will reset to zero.\n\n" +
+
+                "This action is permanent."
+
+            );
+
+
+        if(!confirmed){
+
+            return;
+
+        }
+
+
+        try{
+
+            const {
+                error
+            } =
+            await supabaseClient
+                .from(
+                    "account_lifecycle"
+                )
+                .delete()
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
+
+
+            if(error){
+
+                throw error;
+
+            }
+
+
+            data.lifecycle = [];
+
+
+            renderLifecycleAnalytics();
+
+
+            showSyncMessage(
+                "All lifecycle history deleted."
+            );
+
+
+            alert(
+                "All lifecycle history deleted.\n\n" +
+                "Analytics reset to zero."
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "Delete lifecycle history error:",
+                error
+            );
+
+
+            alert(
+                "History delete failed: " +
+                error.message
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       4. EVERYTHING
+       Accounts + Lifecycle History
+
+       FIRMS AND RULES ARE SAFE.
+    ===================================================== */
+
+    if(
+        action ===
+        "everything"
+    ){
+
+        const confirmed =
+            confirm(
+
+                "⚠️ DELETE EVERYTHING?\n\n" +
+
+                "This will delete:\n" +
+
+                "• All accounts\n" +
+
+                "• All lifecycle history\n\n" +
+
+                "It WILL NOT delete:\n" +
+
+                "• Prop Firms\n" +
+
+                "• Trading Rules\n\n" +
+
+                "This action is permanent.\n\n" +
+
+                "Are you absolutely sure?"
+
+            );
+
+
+        if(!confirmed){
+
+            return;
+
+        }
+
+
+        const finalConfirmed =
+            confirm(
+
+                "FINAL CONFIRMATION\n\n" +
+
+                "Delete ALL accounts and ALL lifecycle history?"
+
+            );
+
+
+        if(!finalConfirmed){
+
+            return;
+
+        }
+
+
+        try{
+
+            /*
+               STEP 1:
+               Delete lifecycle history.
+            */
+
+            const {
+                error:historyError
+            } =
+            await supabaseClient
+                .from(
+                    "account_lifecycle"
+                )
+                .delete()
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
+
+
+            if(historyError){
+
+                throw historyError;
+
+            }
+
+
+            /*
+               STEP 2:
+               Delete accounts.
+            */
+
+            const {
+                error:accountError
+            } =
+            await supabaseClient
+                .from(
+                    "accounts"
+                )
+                .delete()
+                .eq(
+                    "user_id",
+                    currentSession.user.id
+                );
+
+
+            if(accountError){
+
+                throw accountError;
+
+            }
+
+
+            /*
+               IMPORTANT:
+               Firms and rules untouched.
+            */
+
+            data.accounts = [];
+
+            data.lifecycle = [];
+
+
+            renderAll();
+
+
+            showSyncMessage(
+                "All accounts and lifecycle history deleted."
+            );
+
+
+            alert(
+
+                "Everything cleared successfully.\n\n" +
+
+                "Firms and Rules are still safe."
+
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "Clear everything error:",
+                error
+            );
+
+
+            alert(
+                "Clear failed: " +
+                error.message
+            );
+
+        }
+
+    }
+
+}
+
+
+window.runDataManagementAction =
+    runDataManagementAction;
 
 
 /* =========================================================
