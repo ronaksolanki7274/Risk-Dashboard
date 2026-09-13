@@ -3190,7 +3190,174 @@ async function deleteRule(index){
 
     /* MAKE DELETE RULE AVAILABLE TO HTML BUTTON */
 window.deleteRule = deleteRule;
-    window.deleteFirm = deleteFirm;
+
+
+
+/* =========================================================
+   DELETE FIRM
+========================================================= */
+
+async function deleteFirm(encodedFirm){
+
+    const firm =
+        decodeURIComponent(encodedFirm);
+
+    console.log("DELETE FIRM CLICKED:", firm);
+
+    if(!currentSession){
+
+        alert("Please login first.");
+
+        return;
+
+    }
+
+    if(!confirm("Delete prop firm: " + firm + "?")){
+
+        return;
+
+    }
+
+    try{
+
+        /*
+           Check if accounts use this firm
+        */
+
+        const hasAccounts =
+            data.accounts.some(
+                account =>
+                String(account.firm).trim() ===
+                String(firm).trim()
+            );
+
+        if(hasAccounts){
+
+            alert(
+                "This prop firm cannot be deleted because accounts are using it. Delete those accounts first."
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Delete all rules of this firm first
+        */
+
+        const {
+            error:rulesError
+        } =
+        await supabaseClient
+            .from("rules")
+            .delete()
+            .eq(
+                "firm",
+                firm
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(rulesError){
+
+            throw rulesError;
+
+        }
+
+
+        /*
+           Delete firm from Supabase
+        */
+
+        const {
+            error:firmError
+        } =
+        await supabaseClient
+            .from("firms")
+            .delete()
+            .eq(
+                "name",
+                firm
+            )
+            .eq(
+                "user_id",
+                currentSession.user.id
+            );
+
+
+        if(firmError){
+
+            throw firmError;
+
+        }
+
+
+        /*
+           Remove immediately from local dashboard
+        */
+
+        data.firms =
+            data.firms.filter(
+                item =>
+                String(item).trim() !==
+                String(firm).trim()
+            );
+
+
+        data.rules =
+            data.rules.filter(
+                rule =>
+                String(rule.firm).trim() !==
+                String(firm).trim()
+            );
+
+
+        /*
+           Refresh UI immediately
+        */
+
+        renderAll();
+
+        updateAccountRulePreview();
+
+
+        console.log(
+            "PROP FIRM DELETE SUCCESS:",
+            firm
+        );
+
+
+        showSyncMessage(
+            "Prop firm deleted successfully."
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Prop firm delete error:",
+            error
+        );
+
+        alert(
+            "Prop firm delete failed: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/*
+   Make function available to HTML onclick
+*/
+
+window.deleteFirm = deleteFirm;
 
 
 /* =========================================================
